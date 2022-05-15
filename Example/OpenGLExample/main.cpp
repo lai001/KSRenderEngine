@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <functional>
-#include <KSRenderEngine/KSRenderEngine.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
@@ -9,6 +8,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <spdlog/spdlog.h>
 #include <stb_image_write.h>
+#include <KSRenderEngine/KSRenderEngine.hpp>
 
 GLFWwindow* Window = nullptr;
 
@@ -28,7 +28,7 @@ void glInit()
 	glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-	Window = glfwCreateWindow(1280, 720, "Example", NULL, NULL);
+	Window = glfwCreateWindow(1280, 720, "OpenGLExample", NULL, NULL);
 	assert(Window);
 
 	glfwSwapInterval(1);
@@ -103,8 +103,9 @@ R"(
 		gl_FragColor = oColor;
 	}
 )";
-
-	static ks::RenderEngine engine = ks::RenderEngine(ks::RenderEngine::RendererType::OpenGL);
+	
+	static ks::IRenderEngine* enginePtr = ks::RenderEngine::create(ks::GLRenderEngineCreateInfo());
+	ks::IRenderEngine& engine = *enginePtr;
 
 	struct Vertex
 	{
@@ -139,9 +140,9 @@ R"(
 	}
 	static ks::PixelBuffer* pixelBufferPtr = new ks::PixelBuffer(1000, 1000, ks::PixelBuffer::FormatType::rgba8);
 	ks::PixelBuffer& pixelBuffer = *pixelBufferPtr;
-	ks::IShader* shader = engine.createShader(vert, frag, { });
+	ks::IShader* shader = engine.createShader(vert, frag, { }, layout);
 	ks::IFrameBuffer* frameBuffer = engine.createFrameBuffer(1000, 1000);
-	ks::IRenderBuffer * renderBuffer = engine.createRenderBuffer(vertexBuffer.data(), sizeof(Vertex) * vertexBuffer.size(), layout, indexBufferData.data(), indexBufferData.size());
+	ks::IRenderBuffer * renderBuffer = engine.createRenderBuffer(vertexBuffer.data(), vertexBuffer.size(), sizeof(Vertex), layout, indexBufferData.data(), indexBufferData.size(), ks::IIndexBuffer::IndexDataType::uint32);
 	renderBuffer->setFrameBuffer(*frameBuffer);
 	renderBuffer->setShader(*shader);
 	renderBuffer->commit();
@@ -151,9 +152,9 @@ R"(
 	if (dataSource.isEnableSaveImage)
 	{
 		unsigned char* data = reinterpret_cast<unsigned char*>(pixelBuffer.getMutableData()[0]);
-		std::string targetPath = fmt::format("{}/{}.png", ks::Application::getAppDir(), "KSImage");
+		std::string targetPath = fmt::format("{}/{}.png", ks::Application::getAppDir(), "OpenGLExample");
 		int writeStatus = stbi_write_png(targetPath.c_str(), pixelBuffer.getWidth(), pixelBuffer.getHeight(), pixelBuffer.getChannels(), data, pixelBuffer.getWidth() * pixelBuffer.getChannels());
-		spdlog::info(targetPath);
+		spdlog::info("{}, {}", bool(writeStatus), targetPath);
 	}
 
 	engine.erase(shader);

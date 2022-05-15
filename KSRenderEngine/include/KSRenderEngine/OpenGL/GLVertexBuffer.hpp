@@ -12,7 +12,10 @@ namespace ks
 		const VertexBufferLayout layout;
 
 	public:
-		GLVertexBuffer(const void* data, const unsigned int size, const VertexBufferLayout& layout);
+		GLVertexBuffer(const void * vertexBuffer,
+			const unsigned int vertexCount,
+			const unsigned int vertexStride,
+			const VertexBufferLayout& layout);
 		~GLVertexBuffer();
 
 		void bind() const override;

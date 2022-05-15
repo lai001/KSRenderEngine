@@ -18,7 +18,12 @@ target("KSRenderEngine")
     set_kind("$(kind)")
     add_rules("mode.debug", "mode.release", "KSRenderEngine.deps")
     set_languages("c++17")
-
+    if is_plat("windows") then
+        add_links("d3d11")
+        add_links("d3dcompiler")
+        add_files("src/D3D11/*.cpp")
+        add_headerfiles("include/KSRenderEngine/D3D11/*.hpp")
+    end
     add_files("src/OpenGL/*.cpp")
     add_files("src/Common/*.cpp")
     add_files("src/Interface/*.cpp")
@@ -37,3 +42,5 @@ target("KSRenderEngine")
     add_packages("glad")
     add_packages("glfw")
     add_packages("glm", {public = true})
+
+target("Foundation")

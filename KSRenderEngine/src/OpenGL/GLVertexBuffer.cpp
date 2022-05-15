@@ -5,13 +5,16 @@
 
 namespace ks
 {
-	GLVertexBuffer::GLVertexBuffer(const void* data, const unsigned int size, const VertexBufferLayout& layout)
+	GLVertexBuffer::GLVertexBuffer(const void * vertexBuffer,
+		const unsigned int vertexCount,
+		const unsigned int vertexStride,
+		const VertexBufferLayout& layout)
 		:layout(layout)
 	{
-		assert(data);
+		assert(vertexBuffer);
 		glGenBuffers(1, &RendererID);
 		bind();
-		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexCount * vertexStride, vertexBuffer, GL_STATIC_DRAW);
 	}
 
 	GLVertexBuffer::~GLVertexBuffer()

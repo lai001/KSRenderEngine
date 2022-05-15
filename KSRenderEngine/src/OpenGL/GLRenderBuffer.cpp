@@ -3,11 +3,17 @@
 
 namespace ks
 {
-	GLRenderBuffer::GLRenderBuffer(const void * data, const unsigned int size, const VertexBufferLayout & layout, const unsigned int * Data, const unsigned int Count)
+	GLRenderBuffer::GLRenderBuffer(const void * vertexBuffer,
+		const unsigned int vertexCount,
+		const unsigned int vertexStride,
+		const VertexBufferLayout & layout,
+		const void * indexBufferData,
+		const unsigned int indexCount,
+		const IIndexBuffer::IndexDataType type)
 	{
 		vertexArray = std::make_unique<GLVertexArray>();
-		vertextBuffer = std::make_unique<GLVertexBuffer>(data, size, layout);
-		indexBuffer = std::make_unique<GLIndexBuffer>(Data, Count);
+		vertextBuffer = std::make_unique<GLVertexBuffer>(vertexBuffer, vertexCount, vertexStride, layout);
+		indexBuffer = std::make_unique<GLIndexBuffer>(indexBufferData, indexCount, type);
 		vertextBuffer->applyLayout();
 		vertexArray->unbind();
 	}
@@ -23,7 +29,20 @@ namespace ks
 		{
 			frameBuffer->bind();
 		}
-		glDrawElements(GL_TRIANGLES, indexBuffer->getCount(), GL_UNSIGNED_INT, 0);
+		IIndexBuffer::IndexDataType type = indexBuffer->getIndexDataType();
+		if (type == IIndexBuffer::IndexDataType::uint16)
+		{
+			glDrawElements(GL_TRIANGLES, indexBuffer->getCount(), GL_UNSIGNED_SHORT, 0);
+		}
+		else if (type == IIndexBuffer::IndexDataType::uint32)
+		{
+			glDrawElements(GL_TRIANGLES, indexBuffer->getCount(), GL_UNSIGNED_INT, 0);
+		}
+		else
+		{
+			assert(false);
+		}
+
 		shader->unbind();
 		vertexArray->unbind();
 		if (frameBuffer)
@@ -40,5 +59,21 @@ namespace ks
 	void GLRenderBuffer::setFrameBuffer(const IFrameBuffer & frameBuffer)
 	{
 		this->frameBuffer = &frameBuffer;
+	}
+
+	void GLRenderBuffer::setBlendState(const IBlendState & blendState)
+	{
+	}
+
+	void GLRenderBuffer::setDepthStencilState(const IDepthStencilState & depthStencilState)
+	{
+	}
+
+	void GLRenderBuffer::setRasterizerState(const IRasterizerState & rasterizerState)
+	{
+	}
+
+	void GLRenderBuffer::setPrimitiveTopologyType(const PrimitiveTopologyType & primitiveTopologyType)
+	{
 	}
 }

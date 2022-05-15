@@ -4,32 +4,38 @@
 
 namespace ks
 {
-	GLIndexBuffer::GLIndexBuffer(const unsigned int* Data, unsigned int Count)
-		: Count(Count)
+	GLIndexBuffer::GLIndexBuffer(const void* data, unsigned int count, const IndexDataType indexDataType)
+		: count(count), indexDataType(indexDataType)
 	{
-		assert(Data);
-		glGenBuffers(1, &RendererID);
+		assert(data);
+		glGenBuffers(1, &rendererID);
 		bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, Count * sizeof(unsigned int), Data, GL_STATIC_DRAW);
+		
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * IIndexBuffer::getSizeOf(indexDataType), data, GL_STATIC_DRAW);
 	}
 
 	GLIndexBuffer::~GLIndexBuffer()
 	{
-		glDeleteBuffers(1, &RendererID);
+		glDeleteBuffers(1, &rendererID);
 	}
 
 	unsigned int GLIndexBuffer::getCount() const
 	{
-		return Count;
+		return count;
 	}
 
 	void GLIndexBuffer::bind() const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RendererID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, rendererID);
 	}
 
 	void GLIndexBuffer::unbind() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
+	IIndexBuffer::IndexDataType GLIndexBuffer::getIndexDataType() noexcept
+	{
+		return indexDataType;
 	}
 }

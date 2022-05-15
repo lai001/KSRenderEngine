@@ -5,6 +5,11 @@
 #include "IndexBuffer.hpp"
 #include "Shader.hpp"
 #include "FrameBuffer.hpp"
+#include "BlendState.hpp"
+#include "DepthStencilState.hpp"
+#include "RasterizerState.hpp"
+
+#include "Common/PrimitiveTopologyType.hpp"
 
 namespace ks
 {
@@ -17,6 +22,10 @@ namespace ks
 		//virtual void setIndexBuffer(const IIndexBuffer& indexBuffer) = 0;
 		virtual void setShader(const IShader& shader) = 0;
 		virtual void setFrameBuffer(const IFrameBuffer& frameBuffer) = 0;
+		virtual void setBlendState(const IBlendState& blendState) = 0;
+		virtual void setDepthStencilState(const IDepthStencilState& depthStencilState) = 0;
+		virtual void setRasterizerState(const IRasterizerState& rasterizerState) = 0;
+		virtual void setPrimitiveTopologyType(const PrimitiveTopologyType& primitiveTopologyType) = 0;
 	};
 }
 

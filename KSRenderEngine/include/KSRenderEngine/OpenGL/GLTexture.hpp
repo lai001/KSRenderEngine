@@ -5,8 +5,6 @@
 #include <glad/glad.h>
 #include "Interface/Texture2D.hpp"
 
-//#include "GLFW/glfw3.h"
-
 namespace ks
 {
 	enum class GLTextureImageTargetType

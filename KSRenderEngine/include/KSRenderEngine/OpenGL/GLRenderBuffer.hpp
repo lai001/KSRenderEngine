@@ -9,7 +9,7 @@
 
 namespace ks
 {
-	class GLRenderBuffer : public IRenderBuffer
+	class GLRenderBuffer : public noncopyable, public IRenderBuffer
 	{
 	private:
 		const GLShader* shader = nullptr;
@@ -19,11 +19,21 @@ namespace ks
 		const IFrameBuffer* frameBuffer = nullptr;
 
 	public:
-		GLRenderBuffer(const void* data, const unsigned int size, const VertexBufferLayout& layout, const unsigned int* Data, const unsigned int Count);
+		GLRenderBuffer(const void * vertexBuffer,
+			const unsigned int vertexCount,
+			const unsigned int vertexStride,
+			const VertexBufferLayout & layout,
+			const void * indexBufferData,
+			const unsigned int indexCount,
+			const IIndexBuffer::IndexDataType type);
 
 		void commit() override;
 		void setShader(const IShader & shader) override;
 		void setFrameBuffer(const IFrameBuffer & frameBuffer) override;
+		void setBlendState(const IBlendState & blendState) override;
+		void setDepthStencilState(const IDepthStencilState & depthStencilState) override;
+		void setRasterizerState(const IRasterizerState & rasterizerState) override;
+		void setPrimitiveTopologyType(const PrimitiveTopologyType & primitiveTopologyType) override;
 	};
 
 }

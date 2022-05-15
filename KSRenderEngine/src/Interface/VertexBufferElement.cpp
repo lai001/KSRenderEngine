@@ -19,8 +19,28 @@ namespace ks
 		return dic.at(type);
 	}
 
-	VertexBufferElement::VertexBufferElement(const VertexBufferElement::Type type, const unsigned int count, const bool isNormalized)
-		:type(type), isNormalized(isNormalized), count(count)
+	VertexBufferElement::VertexBufferElement(const VertexBufferElement::Type type,
+		const unsigned int count,
+		const bool isNormalized,
+		const Semantics semantics,
+		unsigned int semanticsIndex)
+		:type(type), 
+		isNormalized(isNormalized),
+		count(count), 
+		semantics(semantics), 
+		semanticsIndex(semanticsIndex)
+	{
+
+	}
+
+	VertexBufferElement::VertexBufferElement(const VertexBufferElement::Type type,
+		const unsigned int count,
+		const bool isNormalized)
+		: type(type),
+		isNormalized(isNormalized), 
+		count(count), 
+		semantics(Semantics::unknow),
+		semanticsIndex(0)
 	{
 
 	}

@@ -160,7 +160,6 @@ namespace ks
 	{
 		std::unordered_map<ks::PixelBuffer::FormatType, bool> dic;
 		dic[ks::PixelBuffer::FormatType::rgba8] = true;
-		dic[ks::PixelBuffer::FormatType::rgb8] = true;
 		assert(dic.end() != dic.find(pixelBuffer.getType()));
 
 		//glBindTexture(GL_TEXTURE_2D, RendererID);
