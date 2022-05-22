@@ -1,12 +1,10 @@
 #include "OpenGL/GLShader.hpp"
 #include <assert.h>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
-//#include "GLFW/glfw3.h"
+#include "Common/ShaderConductorHelper.hpp"
+#include "Common/ShaderReflection.hpp"
 
 namespace ks
 {
@@ -24,7 +22,19 @@ namespace ks
 		uniformLocations.clear();
 		for (size_t i = 0; i < uniformCreateInfos.size(); i++)
 		{
-			uniformLocations[uniformCreateInfos.at(i).name] = glGetUniformLocation(RendererID, uniformCreateInfos.at(i).name.c_str());
+			/* TODO: 
+			glBindBuffer(GL_UNIFORM_BUFFER, ...);
+			glBufferData(GL_UNIFORM_BUFFER, ...);
+			*/
+			const std::string key = uniformCreateInfos.at(i).name;
+			const int location = glGetUniformLocation(RendererID, key.c_str());
+			uniformLocations[key] = location;
+		}
+		for (size_t i = 0; i < texture2DInfos.size(); i++)
+		{
+			const std::string key = load(texture2DInfos.at(i)).name;
+			const int location = glGetUniformLocation(RendererID, key.c_str());
+			uniformLocations[key] = location;
 		}
 	}
 
@@ -39,7 +49,27 @@ namespace ks
 		glUseProgram(0);
 	}
 
-	GLShader* GLShader::create(const std::string& VertexShaderSource, const std::string& FragmentShaderSource, const std::vector<UniformInfo> createInfos)
+	void GLShader::setTexture2D(const std::string & name, const ITexture2D & texture2D)
+	{
+		bool isFind = false;
+		for (size_t i = 0; i < texture2DInfos.size(); i++)
+		{
+			if (texture2DInfos[i].name == name)
+			{
+				const std::string actualName = load(texture2DInfos[i]).name;
+				SetUniform1i(actualName, i);
+				texture2D.bind(i);
+				isFind = true;
+				break;
+			}
+		}
+		assert(isFind);
+	}
+
+	GLShader* GLShader::create(const std::string& VertexShaderSource,
+		const std::string& FragmentShaderSource,
+		const std::vector<UniformInfo> createInfos,
+		const std::vector<ShaderTexture2DInfo> texture2DInfos)
 	{
 		unsigned int ProgramID = glCreateProgram();
 		unsigned int Vs;
@@ -78,17 +108,23 @@ namespace ks
 		GLShader* shader = new GLShader();
 		shader->RendererID = ProgramID;
 		shader->uniformCreateInfos = createInfos;
-		shader->textureCount = 0;
-		for (size_t i = 0; i < createInfos.size(); i++)
-		{
-			if (createInfos.at(i).type == UniformValue::Type::texture2d)
-			{
-				shader->textureCount += 1;
-			}
-		}
+		shader->texture2DInfos = texture2DInfos;
 		shader->findUniformLocations();
 		isSuccess = true;
 		return shader;
+	}
+
+	GLShader * GLShader::create(const std::string & vertexShaderSource, const std::string & fragmentShaderSource)
+	{
+		ShaderConductor::Compiler::ResultDesc desc = ShaderConductorHelper::VSHLSL2GLSL(vertexShaderSource);
+		assert(desc.hasError == false);
+		std::string glslVertexShaderSource = std::string(reinterpret_cast<const char*>(desc.target.Data()), desc.target.Size());
+		desc = ShaderConductorHelper::PSHLSL2GLSL(fragmentShaderSource);
+		assert(desc.hasError == false);
+		std::string glslFragmentShaderSource = std::string(reinterpret_cast<const char*>(desc.target.Data()), desc.target.Size());;
+		std::vector<UniformInfo> uniformInfos = ShaderReflection::getFragUniformInfos(fragmentShaderSource);
+		std::vector<ShaderTexture2DInfo> texture2DInfos = ShaderReflection::getFragTexture2DNmaes(fragmentShaderSource);
+		return GLShader::create(glslVertexShaderSource, glslFragmentShaderSource, uniformInfos, texture2DInfos);
 	}
 
 	unsigned int GLShader::compileShader(const IShader::Type shaderType, const std::string & shaderSource, RendererError* error)
@@ -129,6 +165,11 @@ namespace ks
 		return Shader;
 	}
 
+	ShaderTexture2DInfo ks::GLShader::load(const ShaderTexture2DInfo & info)
+	{
+		return ShaderTexture2DInfo(ShaderReflection::Texture2DPrefix + info.name + info.samplerName, info.samplerName);
+	}
+
 	void GLShader::SetUniform4f(const std::string& Name, float V0, float V1, float V2, float V3)
 	{
 		glUniform4f(uniformLocations.at(Name), V0, V1, V2, V3);
@@ -167,115 +208,29 @@ namespace ks
 	void ks::GLShader::setUniform(const std::string& name, const UniformValue& value)
 	{
 		assert(uniformLocations.end() != uniformLocations.find(name));
-		if (value.type == UniformValue::Type::texture2d)
+		if (value.type == UniformValue::Type::f32)
 		{
-			assert(value.getTexture2D());
-			const ks::ITexture2D& texture = *value.getTexture2D();
-			texture.bind(slot);
-			SetUniform1i(name, slot);
-			slot += 1;
-			slot = slot % textureCount;
+			SetUniform1f(name, value.f32);
+		}
+		else if (value.type == UniformValue::Type::i32)
+		{
+			SetUniform1i(name, value.i32);
+		}
+		else if (value.type == UniformValue::Type::vec3)
+		{
+			SetUniform3fv(name, value.vec3, 1);
+		}
+		else if (value.type == UniformValue::Type::vec4)
+		{
+			SetUniform4fv(name, value.vec4, 1);
+		}
+		else if (value.type == UniformValue::Type::mat4)
+		{
+			SetUniformMat4fv(name, value.mat4, 1);
 		}
 		else
 		{
-			if (value.type == UniformValue::Type::f32)
-			{
-				SetUniform1f(name, value.f32);
-			}
-			else if (value.type == UniformValue::Type::i32)
-			{
-				SetUniform1i(name, value.i32);
-			}
-			else if (value.type == UniformValue::Type::vec3)
-			{
-				SetUniform3fv(name, value.vec3, 1);
-			}
-			else if (value.type == UniformValue::Type::vec4)
-			{
-				SetUniform4fv(name, value.vec4, 1);
-			}
-			else if (value.type == UniformValue::Type::mat4)
-			{
-				SetUniformMat4fv(name, value.mat4, 1);
-			}
-			else
-			{
-				assert(false);
-			}
+			assert(false);
 		}
 	}
-
-	//void ks::GLShader::setUniform(const std::string& name, const ITexture& texture)
-	//{
-	//	//const ks::ITexture *texture2D = value.getTexture2D();
-	//	texture.bind(slot);
-	//	SetUniform1i(name, slot);
-	//	slot += 1;
-	//	slot = slot % textureCount;
-	//}
-
-	//void GLShader::SetTexture(const std::string & Name, const GLTexture& Texture)
-	//{
-	//	unsigned int Slot;
-	//	if (TextureSlotCache.find(Name) == TextureSlotCache.end())
-	//	{
-	//		std::vector<unsigned int> values;
-	//		values.reserve(TextureSlotCache.size());
-
-	//		auto maxValue = std::max_element(values.begin(), values.end());
-	//		if (maxValue == values.end())
-	//		{
-	//			Slot = 0;
-	//		}
-	//		else
-	//		{
-	//			Slot = *maxValue + 1;
-	//		}
-	//		TextureSlotCache[Name] = Slot;
-	//	}
-	//	else
-	//	{
-	//		Slot = TextureSlotCache[Name];
-	//	}
-
-	//	Texture.Bind(Slot);
-	//	SetUniform1i(Name, Slot);
-	//}
-
-	//GLShader * GLShader::NewWithSource(const std::string & VertexSourceCode, const std::string & FragSourceCode)
-	//{
-	//	try
-	//	{
-	//		int ID = GLShader::CreateShader(VertexSourceCode, FragSourceCode);
-	//		GLShader* Shader = new GLShader();
-	//		Shader->RendererID = ID;
-	//		return Shader;
-	//	}
-	//	catch (const std::exception E)
-	//	{
-	//		return nullptr;
-	//	}
-	//}
-
-	//GLShader * GLShader::Cache(const std::string & Name)
-	//{
-	//	GLShader* Shader = GLShader::Shaders[Name];
-	//	return Shader;
-	//}
-
-	//GLShader * GLShader::NewOrCache(const std::string & VertexSourceCode, const std::string & FragSourceCode, const std::string & Name)
-	//{
-	//	GLShader* Shader = Cache(Name);
-	//	if (Shader == nullptr)
-	//	{
-	//		Shader = NewWithSource(VertexSourceCode, FragSourceCode);
-	//		if (Shader)
-	//		{
-	//			GLShader::Shaders[Name] = Shader;
-	//		}
-	//	}
-	//	return Shader;
-	//}
-
-
 }

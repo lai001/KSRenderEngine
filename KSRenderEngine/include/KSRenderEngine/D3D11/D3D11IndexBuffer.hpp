@@ -13,7 +13,7 @@
 namespace ks
 {
 
-	class D3D11IndexBuffer: public boost::noncopyable, public IIndexBuffer
+	class D3D11IndexBuffer: public noncopyable, public IIndexBuffer
 	{
 	public:
 		explicit D3D11IndexBuffer(const void* data, 

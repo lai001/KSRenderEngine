@@ -1,8 +1,6 @@
 #ifndef KSRenderEngineVertexBufferElement
 #define KSRenderEngineVertexBufferElement
 
-
-
 namespace ks
 {
 	struct VertexBufferElement
@@ -23,6 +21,8 @@ namespace ks
 		{
 			position,
 			color,
+			texcoord,
+			normal,
 			unknow
 		};
 

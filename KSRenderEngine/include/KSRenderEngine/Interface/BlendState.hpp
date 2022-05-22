@@ -1,9 +1,11 @@
 #ifndef KSRenderEngine_Interface_BlendState_hpp
 #define	KSRenderEngine_Interface_BlendState_hpp
 
+#include "Common/Deletable.hpp"
+
 namespace ks
 {
-	class IBlendState
+	class IBlendState: public IDeletable
 	{
 	public:
 		virtual ~IBlendState() = 0 { };

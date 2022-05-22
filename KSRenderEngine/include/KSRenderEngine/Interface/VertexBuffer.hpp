@@ -1,9 +1,10 @@
 #ifndef KSRENDERENGIVertexBuffer
 #define KSRENDERENGIVertexBuffer
+#include "Common/Deletable.hpp"
 
 namespace ks
 {
-	class IVertexBuffer
+	class IVertexBuffer : public IDeletable
 	{
 	public:
 		virtual ~IVertexBuffer() = 0 { };

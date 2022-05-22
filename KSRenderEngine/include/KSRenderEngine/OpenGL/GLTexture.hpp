@@ -1,4 +1,6 @@
-#pragma once
+#ifndef KSRenderEngine_OpenGL_GLTexture_hpp
+#define KSRenderEngine_OpenGL_GLTexture_hpp
+
 #include <string>
 #include <vector>
 #include <Foundation/Foundation.hpp>
@@ -57,7 +59,7 @@ namespace ks
 		Float = GL_FLOAT,
 	};
 
-	class GLTexture : public boost::noncopyable, public ITexture
+	class GLTexture : public noncopyable, public ITexture2D
 	{
 	private:
 		unsigned int RendererID;
@@ -99,10 +101,6 @@ namespace ks
 
 		static GLTexture* NewDepthMapTexture2D(const int Width, const int Height);
 
-		//void Bind(unsigned int Slot) const;
-
-		//void UnBind();
-
 		int GetWidth() const;
 
 		int GetHeight() const;
@@ -127,3 +125,5 @@ namespace ks
 		void read(ks::PixelBuffer& pixelBuffer);
 	};
 }
+
+#endif // !KSRenderEngine_OpenGL_GLTexture_hpp

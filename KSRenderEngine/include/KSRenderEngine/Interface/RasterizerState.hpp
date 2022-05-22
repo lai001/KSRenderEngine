@@ -1,9 +1,10 @@
 #ifndef KSRenderEngine_Interface_RasterizerState_hpp
 #define	KSRenderEngine_Interface_RasterizerState_hpp
+#include "Common/Deletable.hpp"
 
 namespace ks
 {
-	class IRasterizerState
+	class IRasterizerState : public IDeletable
 	{
 	public:
 		virtual ~IRasterizerState() = 0 { };

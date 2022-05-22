@@ -18,17 +18,18 @@ namespace ks
 		vertexArray->unbind();
 	}
 
-	void GLRenderBuffer::commit()
+	void GLRenderBuffer::commit(const IFrameBuffer& frameBuffer)
 	{
 		assert(shader);
 		assert(vertextBuffer);
 		assert(indexBuffer);
+		frameBuffer.bind();
 		shader->bind();
 		vertexArray->bind();
-		if (frameBuffer)
-		{
-			frameBuffer->bind();
-		}
+		viewport();
+		clearColor();
+		clear();
+
 		IIndexBuffer::IndexDataType type = indexBuffer->getIndexDataType();
 		if (type == IIndexBuffer::IndexDataType::uint16)
 		{
@@ -45,20 +46,54 @@ namespace ks
 
 		shader->unbind();
 		vertexArray->unbind();
-		if (frameBuffer)
+		frameBuffer.unbind();
+	}
+
+	void GLRenderBuffer::setClearBufferFlags(const ks::ClearBufferFlags & flags)
+	{
+		clearBufferFlags = flags;
+	}
+
+	void GLRenderBuffer::setClearColor(const glm::vec4 & clearColor)
+	{
+		_clearColor = clearColor;
+	}
+
+	void GLRenderBuffer::setViewport(const int x, const int y, const int width, const int height)
+	{
+		_viewport = glm::ivec4(x, y, width, height);
+	}
+
+	void GLRenderBuffer::clear() const
+	{
+		if (clearBufferFlags.isContains(ks::ClearBufferFlags::color))
 		{
-			frameBuffer->unbind();
+			glClear(GL_COLOR_BUFFER_BIT);
 		}
+		if (clearBufferFlags.isContains(ks::ClearBufferFlags::depth))
+		{
+			glClear(GL_DEPTH_BUFFER_BIT);
+		}
+		if (clearBufferFlags.isContains(ks::ClearBufferFlags::stencil))
+		{
+			glClear(GL_STENCIL_BUFFER_BIT);
+		}
+	}
+
+	void GLRenderBuffer::clearColor() const
+	{
+		glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
+	}
+
+	void GLRenderBuffer::viewport() const
+	{
+		glViewport(_viewport.x, _viewport.y, _viewport.z, _viewport.w);
+
 	}
 
 	void GLRenderBuffer::setShader(const IShader & shader)
 	{
 		this->shader = dynamic_cast<const GLShader*>(&shader);
-	}
-
-	void GLRenderBuffer::setFrameBuffer(const IFrameBuffer & frameBuffer)
-	{
-		this->frameBuffer = &frameBuffer;
 	}
 
 	void GLRenderBuffer::setBlendState(const IBlendState & blendState)

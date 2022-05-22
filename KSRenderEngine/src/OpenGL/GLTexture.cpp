@@ -135,17 +135,6 @@ namespace ks
 		return texture;
 	}
 
-	//void GLTexture::Bind(unsigned int Slot) const
-	//{
-	//	glActiveTexture(GL_TEXTURE0 + Slot);
-	//	glBindTexture(GL_TEXTURE_2D, RendererID);
-	//}
-
-	//void GLTexture::UnBind()
-	//{
-	//	glBindTexture(GL_TEXTURE_2D, 0);
-	//}
-
 	int GLTexture::GetWidth() const
 	{
 		return Width;

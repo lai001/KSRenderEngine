@@ -16,7 +16,13 @@ namespace ks
 		std::unique_ptr<GLVertexArray> vertexArray = nullptr;
 		std::unique_ptr<GLVertexBuffer> vertextBuffer = nullptr;
 		std::unique_ptr<GLIndexBuffer> indexBuffer = nullptr;
-		const IFrameBuffer* frameBuffer = nullptr;
+
+		glm::vec4 _clearColor;
+		glm::ivec4 _viewport;
+		ks::ClearBufferFlags clearBufferFlags;
+		void clear() const;
+		void clearColor() const;
+		void viewport() const;
 
 	public:
 		GLRenderBuffer(const void * vertexBuffer,
@@ -27,9 +33,11 @@ namespace ks
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type);
 
-		void commit() override;
+		void commit(const IFrameBuffer& frameBuffer) override;
+		void setClearBufferFlags(const ks::ClearBufferFlags& flags) override;
+		void setClearColor(const glm::vec4& clearColor) override;
+		void setViewport(const int x, const int y, const int width, const int height) override;
 		void setShader(const IShader & shader) override;
-		void setFrameBuffer(const IFrameBuffer & frameBuffer) override;
 		void setBlendState(const IBlendState & blendState) override;
 		void setDepthStencilState(const IDepthStencilState & depthStencilState) override;
 		void setRasterizerState(const IRasterizerState & rasterizerState) override;

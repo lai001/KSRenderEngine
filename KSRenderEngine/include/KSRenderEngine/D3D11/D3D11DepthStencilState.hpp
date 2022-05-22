@@ -13,7 +13,7 @@
 
 namespace ks
 {
-	class D3D11DepthStencilState :public boost::noncopyable, public IDepthStencilState
+	class D3D11DepthStencilState :public noncopyable, public IDepthStencilState
 	{
 	public:
 		D3D11DepthStencilState(const DepthStencilStateDescription& depthStencilStateDescription,

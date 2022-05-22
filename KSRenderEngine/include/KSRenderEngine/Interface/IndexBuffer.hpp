@@ -1,9 +1,10 @@
 #ifndef KSRENDERENGIIndexBuffer
 #define KSRENDERENGIIndexBuffer
+#include "Common/Deletable.hpp"
 
 namespace ks
 {
-	class IIndexBuffer
+	class IIndexBuffer : public IDeletable
 	{
 	public:
 		enum class IndexDataType

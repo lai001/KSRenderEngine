@@ -5,15 +5,16 @@
 #include <imgui/backends/imgui_impl_win32.h>
 #include <imgui/backends/imgui_impl_dx11.h>
 #include <spdlog/spdlog.h>
-#include <stb_image_write.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <tchar.h>
 #include <KSRenderEngine/KSRenderEngine.hpp>
+#include "ImageIO.hpp"
 
 struct DataSource
 {
 	bool isEnableSaveImage = false;
+	float intensity = 1.0;
 } dataSource;
 
 // Data
@@ -34,7 +35,7 @@ void frameTick();
 int main(int argc, char** argv)
 {
 	ks::Application::Init(argc, argv);
-
+	spdlog::set_level(spdlog::level::debug);
 	// Create application window
 	//ImGui_ImplWin32_EnableDpiAwareness();
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
@@ -118,15 +119,16 @@ int main(int argc, char** argv)
 
 			ImGui::Begin("D3D11Example");
 			ImGui::Checkbox("Is enable save image", &dataSource.isEnableSaveImage);
+			ImGui::SliderFloat("Intensity", &dataSource.intensity, 0.0, 1.0);
 			ImGui::End();
 		}
 
-		frameTick();
-
-		ImGui::Render();
 		const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
-		g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
 		g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
+		g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
+		frameTick();
+		ImGui::Render();
+		g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 		g_pSwapChain->Present(1, 0); // Present with vsync
@@ -236,12 +238,14 @@ void frameTick()
 struct VS_INPUT
 {
     float2 pos : POSITION;
+	float2 texCoord : TEXCOORD;
     float4 col : COLOR0;
 };
             
 struct PS_INPUT
 {
     float4 pos : SV_POSITION;
+	float2 texCoord : TEXCOORD;
     float4 col : COLOR0;
 };
             
@@ -250,23 +254,36 @@ PS_INPUT main(VS_INPUT input)
     PS_INPUT output;
     output.pos = float4(input.pos.xy, 0.0f, 1.0f);
     output.col = input.col;
+	output.texCoord = input.texCoord;
     return output;
 }
 )";
 
 	const std::string frag =
 		R"(
-struct VertexOut
+cbuffer Uniforms : register(b0)
 {
-	float4 position:SV_POSITION;
-	float4 color:COLOR;
+    float intensity;
+}
+
+struct PS_INPUT
+{
+    float4 pos : SV_POSITION;
+	float2 texCoord : TEXCOORD;
+    float4 col : COLOR0;
 };
 
-float4 main(VertexOut vertexOut) : SV_Target
+Texture2D colorMap: register(t0);
+SamplerState colorMapSampler: register(s0);
+
+float4 main(PS_INPUT vertexOut) : SV_Target
 {
-	return vertexOut.color;
+	float4 color = lerp(vertexOut.col * intensity, colorMap.Sample(colorMapSampler, vertexOut.texCoord), 0.5f);
+	return color;
 }
 )";
+
+	std::unique_ptr < ks::PixelBuffer > imageData = ImageIO::readImageFromFilePath2(ks::Application::getResourcePath("maple.jpg"));
 
 	ks::D3D11RenderEngineCreateInfo createInfo;
 	createInfo.device = g_pd3dDevice;
@@ -278,11 +295,13 @@ float4 main(VertexOut vertexOut) : SV_Target
 	struct Vertex
 	{
 		glm::vec2 aPosition;
+		glm::vec2 texCoord;
 		glm::vec4 aColor;
 	};
 
 	ks::VertexBufferLayout layout = ks::VertexBufferLayout()
 		.f32(2, ks::VertexBufferElement::Semantics::position)
+		.f32(2, ks::VertexBufferElement::Semantics::texcoord)
 		.f32(4, ks::VertexBufferElement::Semantics::color);
 
 	std::vector<unsigned int> indexBufferData = { 0, 1, 2, 2, 1, 3 };
@@ -296,47 +315,52 @@ float4 main(VertexOut vertexOut) : SV_Target
 
 		topLeft.aPosition = glm::vec2(-1.0, 1.0);
 		topLeft.aColor = glm::vec4(1.0, 0.0, 0.0, 1.0);
+		topLeft.texCoord = glm::vec2(0.0, 0.0);
 		topRight.aPosition = glm::vec2(1.0, 1.0);
 		topRight.aColor = glm::vec4(0.0, 1.0, 0.0, 1.0);
+		topRight.texCoord = glm::vec2(1.0, 0.0);
 		bottomLeft.aPosition = glm::vec2(-1.0, -1.0);
 		bottomLeft.aColor = glm::vec4(0.0, 1.0, 1.0, 1.0);
+		bottomLeft.texCoord = glm::vec2(0.0, 1.0);
 		bottomRight.aPosition = glm::vec2(1.0, -1.0);
 		bottomRight.aColor = glm::vec4(0.0, 0.0, 1.0, 1.0);
+		bottomRight.texCoord = glm::vec2(1.0, 1.0);
 
 		vertexBuffer.push_back(topLeft);
 		vertexBuffer.push_back(topRight);
 		vertexBuffer.push_back(bottomLeft);
 		vertexBuffer.push_back(bottomRight);
 	}
+
 	static ks::PixelBuffer* pixelBufferPtr = new ks::PixelBuffer(1000, 1000, ks::PixelBuffer::FormatType::rgba8);
 	ks::PixelBuffer& pixelBuffer = *pixelBufferPtr;
-	ks::IShader* shader = engine.createShader(vert, frag, { }, layout);
+	ks::ITexture2D* colorMap = engine.createTexture2D(imageData->getWidth(), imageData->getHeight(), ks::TextureFormat::R8G8B8A8_UNORM, imageData->getImmutableData()[0]);
 	ks::IFrameBuffer* frameBuffer = engine.createFrameBuffer(1000, 1000);
+	ks::IShader* shader = engine.createShader(vert, frag);
+	shader->bind();
+	shader->setUniform("Uniforms.intensity", ks::UniformValue(dataSource.intensity));
+	shader->setTexture2D("colorMap", *colorMap);
 	ks::IRenderBuffer * renderBuffer = engine.createRenderBuffer(vertexBuffer.data(), vertexBuffer.size(), sizeof(Vertex),
 		layout,
 		indexBufferData.data(), indexBufferData.size(), ks::IIndexBuffer::IndexDataType::uint32);
 	ks::IBlendState* blendState = engine.createBlendState(ks::BlendStateDescription::Addition::getDefault(), ks::BlendStateDescription::getDefault());
 	ks::IDepthStencilState* depthStencilState = engine.createDepthStencilState(ks::DepthStencilStateDescription::getDefault());
 	ks::IRasterizerState* rasterizerState = engine.createRasterizerState(ks::RasterizerStateDescription::getDefault());
-	renderBuffer->setFrameBuffer(*frameBuffer);
+	renderBuffer->setClearColor(glm::vec4(0.0, 0.0, 0.0, 0.0));
+	renderBuffer->setViewport(0, 0, 1000, 1000);
+	renderBuffer->setClearBufferFlags(ks::ClearBufferFlags::color);
 	renderBuffer->setShader(*shader);
 	renderBuffer->setBlendState(*blendState);
 	renderBuffer->setDepthStencilState(*depthStencilState);
 	renderBuffer->setRasterizerState(*rasterizerState);
-	renderBuffer->commit();
-
-	engine.readTexture(frameBuffer, pixelBuffer);
+	renderBuffer->setPrimitiveTopologyType(ks::PrimitiveTopologyType::trianglelist);
+	renderBuffer->commit(*frameBuffer);
 
 	if (dataSource.isEnableSaveImage)
 	{
-		unsigned char* data = reinterpret_cast<unsigned char*>(pixelBuffer.getMutableData()[0]);
-		std::string targetPath = fmt::format("{}/{}.png", ks::Application::getAppDir(), "D3D11Example");
-		int writeStatus = stbi_write_png(targetPath.c_str(),
-			pixelBuffer.getWidth(),
-			pixelBuffer.getHeight(),
-			pixelBuffer.getChannels(),
-			data,
-			pixelBuffer.getWidth() * pixelBuffer.getChannels());
+		engine.readTexture(frameBuffer, pixelBuffer);
+		const std::string targetPath = fmt::format("{}/{}.png", ks::Application::getAppDir(), "D3D11Example");
+		const bool writeStatus = ImageIO::saveImage(pixelBuffer, targetPath);
 		spdlog::info("{}, {}", bool(writeStatus), targetPath);
 	}
 
@@ -346,4 +370,5 @@ float4 main(VertexOut vertexOut) : SV_Target
 	engine.erase(blendState);
 	engine.erase(depthStencilState);
 	engine.erase(rasterizerState);
+	engine.erase(colorMap);
 }

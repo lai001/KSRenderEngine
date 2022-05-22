@@ -13,7 +13,7 @@
 
 namespace ks
 {
-	class D3D11RasterizerState:public noncopyable, public IRasterizerState
+	class D3D11RasterizerState: public noncopyable, public IRasterizerState
 	{
 	public:
 		D3D11RasterizerState(const RasterizerStateDescription& rasterizerStateDescription,

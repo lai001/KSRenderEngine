@@ -5,7 +5,7 @@
 
 namespace ks
 {
-	class GLIndexBuffer : public boost::noncopyable, public IIndexBuffer
+	class GLIndexBuffer : public noncopyable, public IIndexBuffer
 	{
 	private:
 		unsigned int rendererID;

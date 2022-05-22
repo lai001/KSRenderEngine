@@ -12,8 +12,7 @@
 
 namespace ks
 {
-
-	class D3D11VertexBuffer: public boost::noncopyable, public IVertexBuffer
+	class D3D11VertexBuffer: public noncopyable, public IVertexBuffer
 	{
 	public:
 		D3D11VertexBuffer(void const * buffer,
@@ -33,9 +32,6 @@ namespace ks
 
 		static const unsigned int DefaultStartSlot;
 	};
-
-
 }
-
 
 #endif // !KSRenderEngine_D3D11_D3D11VertexBuffer_hpp

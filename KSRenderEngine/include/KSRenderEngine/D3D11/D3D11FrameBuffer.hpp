@@ -14,7 +14,7 @@
 
 namespace ks
 {
-	class D3D11FrameBuffer: public boost::noncopyable, public IFrameBuffer
+	class D3D11FrameBuffer: public noncopyable, public IFrameBuffer
 	{
 	public:
 		D3D11FrameBuffer(const unsigned int width,
@@ -22,9 +22,7 @@ namespace ks
 			const D3D11RenderEngineInfo& engineInfo);
 		~D3D11FrameBuffer();
 
-		void setClearBufferFlags(const ks::ClearBufferFlags & flags) override;
-		void setClearColor(const glm::vec4 & clearColor) override;
-		void setViewport(const int x, const int y, const int width, const int height) override;
+
 		void bind() const override;
 		void unbind() const override;
 		ITexture * getTexture() const override;
@@ -36,14 +34,8 @@ namespace ks
 
 	private:
 		D3D11Texture2D* colorTexture2D = nullptr;
-		D3D11Texture2D* readTexture2D = nullptr;
 		D3D11RenderTargetView* renderTargetView = nullptr;
 		D3D11RenderEngineInfo engineInfo;
-
-		D3D11_VIEWPORT viewport;
-		D3D11_RECT scissorRect;
-
-		glm::vec4 clearColor;
 	};
 }
 

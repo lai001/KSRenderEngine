@@ -1,10 +1,11 @@
 #ifndef KSRENDERENGITexture
 #define KSRENDERENGITexture
 #include <Foundation/Foundation.hpp>
+#include "Common/Deletable.hpp"
 
 namespace ks
 {
-	class ITexture
+	class ITexture : public IDeletable
 	{
 	public:
 		virtual ~ITexture() = 0 { };

@@ -13,6 +13,15 @@ namespace ks
 	{
 		assert(texture2D);
 		texture2D->Release();
+
+		if (texture2DResourceView)
+		{
+			texture2DResourceView->Release();
+		}
+		if (samplerState)
+		{
+			samplerState->Release();
+		}
 	}
 
 	D3D11Texture2D * D3D11Texture2D::create(const Texture2DDescription& texture2DDescription,
@@ -40,6 +49,80 @@ namespace ks
 		d3d11Texture2D->texture2DDescription = texture2DDescription;
 		d3d11Texture2D->engineInfo = engineInfo;
 		return d3d11Texture2D;
+	}
+
+	D3D11Texture2D * D3D11Texture2D::create(const unsigned int width,
+		const unsigned int height,
+		const TextureFormat textureFormat,
+		const void* data,
+		const D3D11RenderEngineInfo& engineInfo)
+	{
+		assert(textureFormat == TextureFormat::R8G8B8A8_UNORM);
+
+		Texture2DDescription texture2DDescription;
+		texture2DDescription.width = width;
+		texture2DDescription.height = height;
+		texture2DDescription.bindFlag = TextureBindFlag::shaderResource;
+		texture2DDescription.usage = TextureUsage::dynamic;
+		texture2DDescription.mipLevels = 1;
+		texture2DDescription.miscFlag = ResourceMiscFlag();
+		texture2DDescription.cpuAccessFlag = CPUAccessFlag::write;
+		texture2DDescription.arraySize = 1;
+		texture2DDescription.sampleDescription.count = 1;
+		texture2DDescription.sampleDescription.quality = 0;
+		texture2DDescription.textureFormat = textureFormat;
+		D3D11Texture2D* d3d11Texture2D = D3D11Texture2D::create(texture2DDescription, engineInfo);
+
+		if (d3d11Texture2D)
+		{
+			assert(engineInfo.context);
+			assert(engineInfo.device);
+			ID3D11Device *d3dDevice = engineInfo.device;
+			ID3D11DeviceContext *context = engineInfo.context;
+			HRESULT status = S_OK;
+			ID3D11Texture2D* texture2D = d3d11Texture2D->getNativeTexture2D();
+			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+			status = context->Map(texture2D, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+			assert(SUCCEEDED(status));
+			for (size_t i = 0; i < height; i++)
+			{
+				memcpy(reinterpret_cast<char*>(mappedSubresource.pData) + i * mappedSubresource.RowPitch,
+					reinterpret_cast<const char*>(data) + i * width * 4,
+					width * 4);
+			}
+			context->Unmap(texture2D, 0);
+
+			{
+				D3D11_TEX2D_SRV tex2dSRV;
+				tex2dSRV.MipLevels = texture2DDescription.mipLevels;
+				tex2dSRV.MostDetailedMip = 0;
+				D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+				shaderResourceViewDesc.Format = d3d11Texture2D->getNativeTextureFormat();
+				shaderResourceViewDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
+				shaderResourceViewDesc.Texture2D = tex2dSRV;
+				status = d3dDevice->CreateShaderResourceView(texture2D, &shaderResourceViewDesc, &d3d11Texture2D->texture2DResourceView);
+				assert(SUCCEEDED(status));
+			}
+
+			{
+				HRESULT status = S_OK;
+				D3D11_SAMPLER_DESC samplerDesc;
+				samplerDesc.MaxAnisotropy = 4;
+				samplerDesc.MipLODBias = 1.0;
+				samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+				samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+				samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+				samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+				status = d3dDevice->CreateSamplerState(&samplerDesc, &d3d11Texture2D->samplerState);
+				assert(SUCCEEDED(status));
+			}
+
+			return d3d11Texture2D;
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 
 	D3D11Texture2D * D3D11Texture2D::createRenderTargetTexture2D(const unsigned int width,
@@ -97,6 +180,15 @@ namespace ks
 		if (texture2DDesc.BindFlags == D3D11_BIND_RENDER_TARGET)
 		{
 
+		}
+		else if (texture2DDesc.BindFlags == D3D11_BIND_SHADER_RESOURCE)
+		{
+			assert(texture2DResourceView);
+			assert(samplerState);
+			d3dDeviceContext->PSSetShaderResources(slot, 1, &texture2DResourceView);
+			d3dDeviceContext->PSSetSamplers(slot, 1, &samplerState);
+			d3dDeviceContext->VSSetShaderResources(slot, 1, &texture2DResourceView);
+			d3dDeviceContext->VSSetSamplers(slot, 1, &samplerState);
 		}
 		else
 		{
@@ -179,6 +271,10 @@ namespace ks
 		if (texture2DDescription.bindFlag.isContains(TextureBindFlag::constantBuffer))
 		{
 			BindFlags = BindFlags | D3D11_BIND_CONSTANT_BUFFER;
+		}
+		if (texture2DDescription.bindFlag.isContains(TextureBindFlag::shaderResource))
+		{
+			BindFlags = BindFlags | D3D11_BIND_SHADER_RESOURCE;
 		}
 		// TODO: BindFlags
 

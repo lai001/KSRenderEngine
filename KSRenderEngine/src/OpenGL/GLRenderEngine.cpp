@@ -28,21 +28,6 @@ namespace ks
 		}
 	}
 
-	void GLRenderEngine::erase(IFrameBuffer * ptr)
-	{
-		delete ptr;
-	}
-
-	void GLRenderEngine::erase(IShader * ptr)
-	{
-		delete ptr;
-	}
-
-	void GLRenderEngine::erase(IRenderBuffer * ptr)
-	{
-		delete ptr;
-	}
-
 	void GLRenderEngine::enableDebug(const bool flag)
 	{
 		ks::GLErrorFilter errorFilter;
@@ -51,37 +36,34 @@ namespace ks
 		ks::GLErrorChecker::enableDebugMessageCallback(&errorFilter, flag);
 	}
 
-	IShader * GLRenderEngine::createShader(const std::string & VertexShaderSource, const std::string & FragmentShaderSource, const std::vector<UniformInfo>& createInfos, const ks::VertexBufferLayout & layout)
+	IShader * GLRenderEngine::createShader(const std::string& VertexShaderSource,
+		const std::string& FragmentShaderSource,
+		const std::vector<UniformInfo>& createInfos,
+		const std::vector<ShaderTexture2DInfo> texture2DInfos,
+		const ks::VertexBufferLayout& layout)
 	{
-		return GLShader::create(VertexShaderSource, FragmentShaderSource, createInfos);
+		return GLShader::create(VertexShaderSource,
+			FragmentShaderSource,
+			createInfos,
+			texture2DInfos);
 	}
 
-	IRenderBuffer * GLRenderEngine::createRenderBuffer(const void * vertexBuffer, 
+	IShader * GLRenderEngine::createShader(const std::string & VertexShaderSource, const std::string & FragmentShaderSource)
+	{
+		return GLShader::create(VertexShaderSource, FragmentShaderSource);
+	}
+
+	IRenderBuffer * GLRenderEngine::createRenderBuffer(const void * vertexBuffer,
 		const unsigned int vertexCount,
 		const unsigned int vertexStride,
 		const VertexBufferLayout & layout,
-		const void * indexBufferData, 
+		const void * indexBufferData,
 		const unsigned int indexCount,
 		const IIndexBuffer::IndexDataType type)
 	{
 		GLRenderBuffer* buffer = new GLRenderBuffer(vertexBuffer, vertexCount, vertexStride, layout,
 			indexBufferData, indexCount, type);
 		return buffer;
-	}
-
-	void GLRenderEngine::erase(IBlendState * ptr)
-	{
-		delete ptr;
-	}
-
-	void GLRenderEngine::erase(IRasterizerState * ptr)
-	{
-		delete ptr;
-	}
-
-	void GLRenderEngine::erase(IDepthStencilState * ptr)
-	{
-		delete ptr;
 	}
 
 	ks::IBlendState * GLRenderEngine::createBlendState(const BlendStateDescription::Addition& addition,
@@ -100,4 +82,18 @@ namespace ks
 		return nullptr;
 	}
 
+	ITexture2D * GLRenderEngine::createTexture2D(const unsigned int width,
+		const unsigned int height,
+		const TextureFormat textureFormat,
+		const unsigned char * data)
+	{
+		assert(data);
+		const ks::GLPixelFormatType type = ks::GLPixelFormatType::RGBA; // TODO: More Format
+		return GLTexture::NewTexture2D(width, height, type, data);
+	}
+
+	void GLRenderEngine::erase(IDeletable * deletable)
+	{
+		delete deletable;
+	}
 }

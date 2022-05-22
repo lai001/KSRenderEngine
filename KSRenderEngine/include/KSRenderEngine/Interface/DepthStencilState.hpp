@@ -1,9 +1,10 @@
 #ifndef KSRenderEngine_Interface_DepthStencilState_hpp
 #define	KSRenderEngine_Interface_DepthStencilState_hpp
+#include "Common/Deletable.hpp"
 
 namespace ks
 {
-	class IDepthStencilState
+	class IDepthStencilState : public IDeletable
 	{
 	public:
 		virtual ~IDepthStencilState() = 0 { };

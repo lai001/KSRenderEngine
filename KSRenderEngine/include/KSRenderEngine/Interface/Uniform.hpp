@@ -17,8 +17,7 @@ namespace ks
 			vec3,
 			vec4,
 			mat3,
-			mat4,
-			texture2d,
+			mat4
 		};
 
 		UniformValue::Type type;
@@ -31,7 +30,6 @@ namespace ks
 			glm::vec4 vec4;
 			glm::mat3 mat3;
 			glm::mat4 mat4;
-			const ITexture2D* texture2d = nullptr;
 		};
 
 		UniformValue(const int32_t v);
@@ -41,10 +39,8 @@ namespace ks
 		UniformValue(const glm::vec4 v);
 		UniformValue(const glm::mat3 v);
 		UniformValue(const glm::mat4 v);
-		UniformValue(const ITexture2D* v);
 
 		const void* getData() const noexcept;
-		const ITexture2D* getTexture2D() const;
 	};
 	
 	struct UniformInfo
@@ -55,6 +51,13 @@ namespace ks
 		explicit UniformInfo(const std::string& name, const UniformValue::Type type) :name(name), type(type) { }
 	};
 
+	struct ShaderTexture2DInfo
+	{
+	public:
+		std::string name;
+		std::string samplerName;
+		explicit ShaderTexture2DInfo(const std::string& name, const std::string& samplerName) :name(name), samplerName(samplerName) { }
+	};
 }
 
 #endif // !KSRENDERENGIUniform

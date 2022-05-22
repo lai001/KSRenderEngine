@@ -7,13 +7,13 @@
 
 #include <d3d11.h>
 #include <Foundation/Foundation.hpp>
-#include "Common/BlendStateDescription.hpp"
 #include "Interface/BlendState.hpp"
 #include "D3D11/D3D11RenderEngine.hpp"
+#include "Common/BlendStateDescription.hpp"
 
 namespace ks
 {
-	class D3D11BlendState : public boost::noncopyable, public IBlendState
+	class D3D11BlendState : public noncopyable, public IBlendState
 	{
 	public:
 		explicit D3D11BlendState(const BlendStateDescription::Addition& addition,

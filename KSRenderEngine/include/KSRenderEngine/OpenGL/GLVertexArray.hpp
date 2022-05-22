@@ -1,9 +1,11 @@
-#pragma once
+#ifndef KSRenderEngine_OpenGL_GLVertexArray_hpp
+#define KSRenderEngine_OpenGL_GLVertexArray_hpp
+
 #include <Foundation/Foundation.hpp>
 
 namespace ks
 {
-	class GLVertexArray : public boost::noncopyable
+	class GLVertexArray : public noncopyable
 	{
 	private:
 		unsigned int RendererID;
@@ -17,3 +19,5 @@ namespace ks
 		void unbind();
 	};
 }
+
+#endif // ! KSRenderEngine_OpenGL_GLVertexArray_hpp

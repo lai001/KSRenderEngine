@@ -1,11 +1,13 @@
-#pragma once
+#ifndef KSRenderEngine_OpenGL_GLVertexBuffer_hpp
+#define KSRenderEngine_OpenGL_GLVertexBuffer_hpp
+
 #include <Foundation/Foundation.hpp>
 #include "Interface/VertexBuffer.hpp"
 #include "Interface/VertexBufferLayout.hpp"
 
 namespace ks
 {
-	class GLVertexBuffer : public boost::noncopyable, public IVertexBuffer
+	class GLVertexBuffer : public noncopyable, public IVertexBuffer
 	{
 	private:
 		unsigned int RendererID;
@@ -28,3 +30,5 @@ namespace ks
 		unsigned int getRendererID() const;
 	};
 }
+
+#endif // !KSRenderEngine_OpenGL_GLVertexBuffer_hpp

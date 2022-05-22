@@ -9,7 +9,7 @@ namespace ks
 		assert(engineInfo.context);
 		assert(engineInfo.device);
 		ID3D11Device *d3dDevice = engineInfo.device;
-		// TODO:
+		// TODO: DepthStencilStateDescription -> D3D11_DEPTH_STENCIL_DESC
 		HRESULT status = S_OK;
 		D3D11_DEPTH_STENCIL_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));

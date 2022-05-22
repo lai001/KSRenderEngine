@@ -23,21 +23,8 @@ namespace ks
 	UniformValue::UniformValue(const glm::mat4 v)
 		: type(UniformValue::Type::mat4), mat4(v) { }
 
-	UniformValue::UniformValue(const ITexture2D * v)
-		: type(UniformValue::Type::texture2d), texture2d(v) { }
-
 	const void * UniformValue::getData() const noexcept
 	{
-		if (type == UniformValue::Type::texture2d)
-		{
-			return texture2d;
-		}
 		return &this->f32;
-	}
-
-	const ITexture2D * UniformValue::getTexture2D() const
-	{
-		assert(type == UniformValue::Type::texture2d);
-		return texture2d;
 	}
 }

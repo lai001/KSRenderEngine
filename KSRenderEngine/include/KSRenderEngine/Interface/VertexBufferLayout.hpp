@@ -34,6 +34,8 @@ namespace ks
 			const unsigned int semanticsIndex = 0,
 			bool isNormalized = false);
 
+		VertexBufferLayout& element(const VertexBufferElement& element);
+
 		std::vector<VertexBufferElement> getElements() const;
 		unsigned int getStride() const;
 

@@ -14,6 +14,8 @@ namespace ks
 	{
 		engineInfo.context = createInfo.context;
 		engineInfo.device = createInfo.device;
+		assert(engineInfo.context);
+		assert(engineInfo.device);
 	}
 
 	IFrameBuffer * D3D11RenderEngine::createFrameBuffer(const int width, const int height)
@@ -22,15 +24,25 @@ namespace ks
 		return framBuffer;
 	}
 
-	IShader * D3D11RenderEngine::createShader(const std::string & VertexShaderSource,
-		const std::string & FragmentShaderSource,
+	IShader * D3D11RenderEngine::createShader(const std::string& VertexShaderSource,
+		const std::string& FragmentShaderSource,
 		const std::vector<UniformInfo>& createInfos,
-		const ks::VertexBufferLayout & layout)
+		const std::vector<ShaderTexture2DInfo> texture2DInfo,
+		const ks::VertexBufferLayout& layout)
 	{
 		D3D11Shader* shader = D3D11Shader::create(VertexShaderSource,
 			FragmentShaderSource,
 			createInfos,
+			texture2DInfo,
 			layout,
+			engineInfo);
+		return shader;
+	}
+
+	IShader * D3D11RenderEngine::createShader(const std::string & VertexShaderSource, const std::string & FragmentShaderSource)
+	{
+		D3D11Shader* shader = D3D11Shader::create(VertexShaderSource,
+			FragmentShaderSource,
 			engineInfo);
 		return shader;
 	}
@@ -57,34 +69,18 @@ namespace ks
 		d3d11FrameBuffer->read(pixelBuffer);
 	}
 
-	void D3D11RenderEngine::erase(IFrameBuffer * ptr)
+	ITexture2D * D3D11RenderEngine::createTexture2D(const unsigned int width,
+		const unsigned int height,
+		const TextureFormat textureFormat,
+		const unsigned char * data)
 	{
-		delete ptr;
+		assert(textureFormat == ks::TextureFormat::R8G8B8A8_UNORM);
+		return D3D11Texture2D::create(width, height, textureFormat, data, engineInfo);
 	}
 
-	void D3D11RenderEngine::erase(IShader * ptr)
+	void D3D11RenderEngine::erase(IDeletable * deletable)
 	{
-		delete ptr;
-	}
-
-	void D3D11RenderEngine::erase(IRenderBuffer * ptr)
-	{
-		delete ptr;
-	}
-
-	void D3D11RenderEngine::erase(IBlendState * ptr)
-	{
-		delete ptr;
-	}
-
-	void D3D11RenderEngine::erase(IRasterizerState * ptr)
-	{
-		delete ptr;
-	}
-
-	void D3D11RenderEngine::erase(IDepthStencilState * ptr)
-	{
-		delete ptr;
+		delete deletable;
 	}
 
 	ks::IBlendState * D3D11RenderEngine::createBlendState(const BlendStateDescription::Addition& addition,
