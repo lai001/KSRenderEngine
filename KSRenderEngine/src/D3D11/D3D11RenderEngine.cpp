@@ -50,12 +50,13 @@ namespace ks
 	IRenderBuffer * D3D11RenderEngine::createRenderBuffer(const void * vertexBuffer,
 		const unsigned int vertexCount,
 		const unsigned int vertexStride,
-		const VertexBufferLayout & layout,
+		const IShader & shader,
 		const void * indexBufferData,
 		const unsigned int indexCount,
 		const IIndexBuffer::IndexDataType type)
 	{
 		D3D11RenderBuffer* renderBuffer = new D3D11RenderBuffer(vertexBuffer, vertexCount, vertexStride,
+			shader,
 			indexBufferData, indexCount, type,
 			engineInfo);
 		return renderBuffer;

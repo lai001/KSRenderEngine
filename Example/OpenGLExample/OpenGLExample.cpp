@@ -14,7 +14,7 @@ GLFWwindow* Window = nullptr;
 
 struct DataSource
 {
-	bool isEnableSaveImage = false;
+	std::function<bool()> isSaveImage;
 	float intensity = 1.0;
 } dataSource;
 
@@ -65,8 +65,16 @@ void imguiDrawUI()
 
 	ImGui::SetNextWindowBgAlpha(0.2);
 	ImGui::Begin("Example", nullptr, Flags);
-	ImGui::Checkbox("Is enable save image", &dataSource.isEnableSaveImage);
+	if (ImGui::Button("Save image"))
+	{
+		dataSource.isSaveImage = []()
+		{
+			dataSource.isSaveImage = std::function<bool()>();
+			return true;
+		};
+	}
 	ImGui::SliderFloat("Intensity", &dataSource.intensity, 0.0, 1.0);
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 }
 
@@ -95,8 +103,6 @@ void frameTick()
 		glm::vec2 aTexCoord;
 		glm::vec4 aColor;
 	};
-
-	ks::VertexBufferLayout layout = ks::VertexBufferLayout().f32(2).f32(2).f32(4);
 
 	std::vector<unsigned int> indexBufferData = { 0, 1, 2, 2, 1, 3 };
 
@@ -133,23 +139,19 @@ void frameTick()
 	ks::IFrameBuffer* frameBuffer = engine.createFrameBuffer(1000, 1000);
 	ks::ITexture2D* colorMap = engine.createTexture2D(imageData->getWidth(), imageData->getHeight(), ks::TextureFormat::R8G8B8A8_UNORM, imageData->getImmutableData()[0]);
 	ks::IShader* shader = engine.createShader(vert, frag);
-	shader->bind();
 	shader->setUniform("Uniforms.intensity", ks::UniformValue(dataSource.intensity));
 	shader->setTexture2D("colorMap", *colorMap);
 	ks::IRenderBuffer * renderBuffer = engine.createRenderBuffer(vertexBuffer.data(), vertexBuffer.size(), sizeof(Vertex),
-		layout,
+		*shader,
 		indexBufferData.data(), indexBufferData.size(), ks::IIndexBuffer::IndexDataType::uint32);
 	renderBuffer->setClearColor(glm::vec4(0.0, 0.0, 0.0, 0.0));
 	renderBuffer->setViewport(0, 0, 1000, 1000);
 	renderBuffer->setClearBufferFlags(ks::ClearBufferFlags::color);
-	renderBuffer->setShader(*shader);
-
 	renderBuffer->commit(*frameBuffer);
 
-	engine.readTexture(frameBuffer, pixelBuffer);
-
-	if (dataSource.isEnableSaveImage)
+	if (dataSource.isSaveImage && dataSource.isSaveImage())
 	{
+		engine.readTexture(frameBuffer, pixelBuffer);
 		const std::string targetPath = fmt::format("{}/{}.png", ks::Application::getAppDir(), "OpenGLExample");
 		const bool writeStatus = ImageIO::saveImage(pixelBuffer, targetPath);
 		spdlog::info("{}, {}", bool(writeStatus), targetPath);

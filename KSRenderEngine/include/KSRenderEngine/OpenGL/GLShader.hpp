@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 #include <Foundation/Foundation.hpp>
 #include <glm/glm.hpp>
 
@@ -19,10 +20,14 @@ namespace ks
 	class GLShader : public noncopyable, public IShader
 	{
 	private:
+		VertexBufferLayout vertexBufferLayout;
+
 		std::vector<GLUniformBuffer*> constantBuffers;
 		std::vector<UniformBufferInfo> uniformBuffers;
 		std::vector<ShaderTexture2DInfo> texture2DInfos;
 		std::unordered_map<std::string, int> uniformTexture2DLocations;
+
+		std::unordered_map<std::string, std::function<void()>> delayBindTexture2Ds;
 
 		void findUniformTexture2DLocations();
 		static unsigned int compileShader(const IShader::Type shaderType, const std::string & shaderSource, RendererError* error);
@@ -41,6 +46,7 @@ namespace ks
 
 		static GLShader* create(const std::string& vertexShaderSource,
 			const std::string& fragmentShaderSource,
+			const ks::VertexBufferLayout& layout,
 			const std::vector<UniformBufferInfo> uniformBuffers,
 			const std::vector<ShaderTexture2DInfo> texture2DInfos);
 
@@ -54,6 +60,8 @@ namespace ks
 
 		void bind() const override;
 		void unbind() const override;
+
+		VertexBufferLayout getVertexBufferLayout() const override;
 	};
 }
 

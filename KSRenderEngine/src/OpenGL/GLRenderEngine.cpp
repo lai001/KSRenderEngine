@@ -44,6 +44,7 @@ namespace ks
 	{
 		return GLShader::create(vertexShaderSource,
 			fragmentShaderSource,
+			layout,
 			uniformBuffers,
 			texture2DInfos);
 	}
@@ -56,12 +57,13 @@ namespace ks
 	IRenderBuffer * GLRenderEngine::createRenderBuffer(const void * vertexBuffer,
 		const unsigned int vertexCount,
 		const unsigned int vertexStride,
-		const VertexBufferLayout & layout,
+		const IShader & shader,
 		const void * indexBufferData,
 		const unsigned int indexCount,
 		const IIndexBuffer::IndexDataType type)
 	{
-		GLRenderBuffer* buffer = new GLRenderBuffer(vertexBuffer, vertexCount, vertexStride, layout,
+		GLRenderBuffer* buffer = new GLRenderBuffer(vertexBuffer, vertexCount, vertexStride,
+			shader,
 			indexBufferData, indexCount, type);
 		return buffer;
 	}

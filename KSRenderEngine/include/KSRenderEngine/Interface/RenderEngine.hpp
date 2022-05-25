@@ -26,6 +26,7 @@ namespace ks
 	{
 	public:
 		virtual IFrameBuffer* createFrameBuffer(const int width, const int height) = 0;
+
 		virtual IShader* createShader(const std::string& vertexShaderSource,
 			const std::string& fragmentShaderSource,
 			const std::vector<UniformBufferInfo>& uniformBuffers,
@@ -35,19 +36,21 @@ namespace ks
 		virtual IShader* createShader(const std::string& VertexShaderSource,
 			const std::string& FragmentShaderSource) = 0;
 
-		//virtual IVertexBuffer* createVertexBuffer(const void* data, const unsigned int size, const VertexBufferLayout& layout) = 0;
-		//virtual IIndexBuffer* createIndexBuffer(const void* data, const unsigned int count, const unsigned int stride) = 0;
 		virtual IRenderBuffer* createRenderBuffer(const void * vertexBuffer,
 			const unsigned int vertexCount,
 			const unsigned int vertexStride,
-			const VertexBufferLayout & layout,
+			const IShader & shader,
 			const void * indexBufferData,
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type) = 0;
+
 		virtual IBlendState* createBlendState(const BlendStateDescription::Addition& addition, 
 			const BlendStateDescription& blendStateDescription) = 0;
+
 		virtual IRasterizerState* createRasterizerState(const RasterizerStateDescription& rasterizerStateDescription) = 0;
+
 		virtual IDepthStencilState* createDepthStencilState(const DepthStencilStateDescription& depthStencilStateDescription) = 0;
+
 		virtual ITexture2D* createTexture2D(const unsigned int width, 
 			const unsigned int height,
 			const TextureFormat textureFormat,

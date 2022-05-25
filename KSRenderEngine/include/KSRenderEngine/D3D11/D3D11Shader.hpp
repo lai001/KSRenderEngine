@@ -15,6 +15,7 @@ namespace ks
 	class D3D11Shader: public noncopyable, public IShader
 	{
 	private:
+		VertexBufferLayout vertexBufferLayout;
 		D3D11RenderEngineInfo engineInfo;
 		ID3DBlob* vertexShaderBlob = nullptr;
 		ID3D11VertexShader* vertexShader = nullptr;
@@ -48,6 +49,7 @@ namespace ks
 		void unbind() const override;
 		void setUniform(const std::string & name, const UniformValue & value) override;
 		void setTexture2D(const std::string & name, const ITexture2D & texture2D) override;
+		VertexBufferLayout getVertexBufferLayout() const override;
 		static std::vector<D3D11_INPUT_ELEMENT_DESC> getInputElementDescs(const ks::VertexBufferLayout& layout);
 	};
 }

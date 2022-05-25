@@ -183,6 +183,7 @@ namespace ks
 		}
 
 		D3D11Shader * shader = new D3D11Shader();
+		shader->vertexBufferLayout = layout;
 		shader->engineInfo = engineInfo;
 		shader->inputLayout = inputLayout;
 		shader->pixelShader = pixelShader;
@@ -303,6 +304,11 @@ namespace ks
 		}
 
 		return inputElementDescs;
+	}
+
+	VertexBufferLayout ks::D3D11Shader::getVertexBufferLayout() const
+	{
+		return vertexBufferLayout;
 	}
 
 	void ks::D3D11Shader::setTexture2D(const std::string & name, const ITexture2D & texture2D)

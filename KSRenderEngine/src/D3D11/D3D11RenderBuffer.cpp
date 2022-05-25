@@ -6,12 +6,14 @@ namespace ks
 	D3D11RenderBuffer::D3D11RenderBuffer(void const * vertexBuffer,
 		const unsigned int vertexCount,
 		const unsigned int vertexStride,
+		const IShader & shader,
 		const void * indexBufferData,
 		const unsigned int indexCount,
 		const IIndexBuffer::IndexDataType type,
 		const D3D11RenderEngineInfo& engineInfo)
 		:engineInfo(engineInfo)
 	{
+		this->shader = dynamic_cast<const D3D11Shader*>(&shader);
 		vertextBuffer = std::make_unique<const D3D11VertexBuffer>(vertexBuffer, vertexCount, vertexStride, engineInfo);
 		indexBuffer = std::make_unique<const D3D11IndexBuffer>(indexBufferData, indexCount, type, engineInfo);
 	}
@@ -86,11 +88,6 @@ namespace ks
 		scissorRect.top = y;
 		scissorRect.right = x + width;
 		scissorRect.bottom = y + height;
-	}
-
-	void D3D11RenderBuffer::setShader(const IShader & shader)
-	{
-		this->shader = &shader;
 	}
 
 	void D3D11RenderBuffer::setBlendState(const IBlendState & blendState)

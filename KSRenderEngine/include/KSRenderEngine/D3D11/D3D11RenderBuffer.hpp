@@ -13,6 +13,7 @@
 #include "D3D11/D3D11VertexBuffer.hpp"
 #include "D3D11/D3D11IndexBuffer.hpp"
 #include "D3D11/D3D11FrameBuffer.hpp"
+#include "D3D11/D3D11Shader.hpp"
 
 namespace ks
 {
@@ -22,6 +23,7 @@ namespace ks
 		D3D11RenderBuffer(void const * vertexBuffer,
 			const unsigned int vertexCount,
 			const unsigned int vertexStride,
+			const IShader & shader,
 			const void * indexBufferData,
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type,
@@ -31,7 +33,6 @@ namespace ks
 		void setClearBufferFlags(const ks::ClearBufferFlags & flags) override;
 		void setClearColor(const glm::vec4 & clearColor) override;
 		void setViewport(const int x, const int y, const int width, const int height) override;
-		void setShader(const IShader & shader) override;
 		void setBlendState(const IBlendState & blendState) override;
 		void setDepthStencilState(const IDepthStencilState & depthStencilState) override;
 		void setRasterizerState(const IRasterizerState & rasterizerState) override;
@@ -42,7 +43,7 @@ namespace ks
 		const IBlendState* blendState = nullptr;
 		const IDepthStencilState* depthStencilState = nullptr;
 		const IRasterizerState* rasterizerState = nullptr;
-		const IShader* shader = nullptr;
+		const D3D11Shader* shader = nullptr;
 
 		std::unique_ptr<const D3D11VertexBuffer> vertextBuffer = nullptr;
 		std::unique_ptr<const D3D11IndexBuffer> indexBuffer = nullptr;

@@ -38,12 +38,12 @@ namespace ks
 		IShader * createShader(const std::string & VertexShaderSource,
 			const std::string & FragmentShaderSource) override;
 
-		IRenderBuffer * createRenderBuffer(const void * vertexBuffer, 
-			const unsigned int vertexCount, 
+		IRenderBuffer * createRenderBuffer(const void * vertexBuffer,
+			const unsigned int vertexCount,
 			const unsigned int vertexStride,
-			const VertexBufferLayout & layout, 
-			const void * indexBufferData, 
-			const unsigned int indexCount, 
+			const IShader & shader,
+			const void * indexBufferData,
+			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type) override;
 
 		IBlendState * createBlendState(const BlendStateDescription::Addition& addition,

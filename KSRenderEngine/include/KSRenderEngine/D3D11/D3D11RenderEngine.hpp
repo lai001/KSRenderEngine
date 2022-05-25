@@ -37,7 +37,7 @@ namespace ks
 		IRenderBuffer * createRenderBuffer(const void * vertexBuffer,
 			const unsigned int vertexCount,
 			const unsigned int vertexStride,
-			const VertexBufferLayout & layout,
+			const IShader & shader,
 			const void * indexBufferData,
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type) override;

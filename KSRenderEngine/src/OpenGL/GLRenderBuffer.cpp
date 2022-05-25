@@ -6,13 +6,15 @@ namespace ks
 	GLRenderBuffer::GLRenderBuffer(const void * vertexBuffer,
 		const unsigned int vertexCount,
 		const unsigned int vertexStride,
-		const VertexBufferLayout & layout,
+		const IShader & shader,
 		const void * indexBufferData,
 		const unsigned int indexCount,
 		const IIndexBuffer::IndexDataType type)
 	{
+		this->shader = dynamic_cast<const GLShader*>(&shader);
+		assert(this->shader);
 		vertexArray = std::make_unique<GLVertexArray>();
-		vertextBuffer = std::make_unique<GLVertexBuffer>(vertexBuffer, vertexCount, vertexStride, layout);
+		vertextBuffer = std::make_unique<GLVertexBuffer>(vertexBuffer, vertexCount, vertexStride, shader.getVertexBufferLayout());
 		indexBuffer = std::make_unique<GLIndexBuffer>(indexBufferData, indexCount, type);
 		vertextBuffer->applyLayout();
 		vertexArray->unbind();
@@ -89,11 +91,6 @@ namespace ks
 	{
 		glViewport(_viewport.x, _viewport.y, _viewport.z, _viewport.w);
 
-	}
-
-	void GLRenderBuffer::setShader(const IShader & shader)
-	{
-		this->shader = dynamic_cast<const GLShader*>(&shader);
 	}
 
 	void GLRenderBuffer::setBlendState(const IBlendState & blendState)

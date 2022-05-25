@@ -32,12 +32,17 @@ namespace ks
 
 	void GLShader::bind() const
 	{
+		useProgram();
 		for (ks::GLUniformBuffer* glUniformBuffer : constantBuffers)
 		{
 			assert(glUniformBuffer);
 			glUniformBuffer->bind();
 		}
-		useProgram();
+		for (const auto &args : delayBindTexture2Ds)
+		{
+			const std::function<void()> bindClosure = args.second;
+			bindClosure();
+		}
 	}
 
 	void GLShader::unbind() const
@@ -50,6 +55,11 @@ namespace ks
 		unuseProgram();
 	}
 
+	VertexBufferLayout GLShader::getVertexBufferLayout() const
+	{
+		return vertexBufferLayout;
+	}
+
 	void GLShader::setTexture2D(const std::string & name, const ITexture2D & texture2D)
 	{
 		bool isFind = false;
@@ -58,8 +68,11 @@ namespace ks
 			if (texture2DInfos[i].name == name)
 			{
 				const std::string actualName = load(texture2DInfos[i]).name;
-				glUniform1i(uniformTexture2DLocations.at(actualName), i);
-				texture2D.bind(i);
+				delayBindTexture2Ds[actualName] = [&texture2D, actualName, this, i]()
+				{
+					glUniform1i(uniformTexture2DLocations.at(actualName), i);
+					texture2D.bind(i);
+				};
 				isFind = true;
 				break;
 			}
@@ -69,6 +82,7 @@ namespace ks
 
 	GLShader* GLShader::create(const std::string& vertexShaderSource,
 		const std::string& fragmentShaderSource,
+		const ks::VertexBufferLayout& layout,
 		const std::vector<UniformBufferInfo> uniformBuffers,
 		const std::vector<ShaderTexture2DInfo> texture2DInfos)
 	{
@@ -107,6 +121,7 @@ namespace ks
 		glValidateProgram(ProgramID);
 
 		GLShader* shader = new GLShader();
+		shader->vertexBufferLayout = layout;
 		shader->RendererID = ProgramID;
 		shader->uniformBuffers = uniformBuffers;
 		shader->texture2DInfos = texture2DInfos;
@@ -126,7 +141,8 @@ namespace ks
 		std::string glslFragmentShaderSource = std::string(reinterpret_cast<const char*>(desc.target.Data()), desc.target.Size());;
 		std::vector<UniformBufferInfo> uniformBuffers = ShaderReflection::getFragUniformBuffers(fragmentShaderSource);
 		std::vector<ShaderTexture2DInfo> texture2DInfos = ShaderReflection::getFragTexture2DNmaes(fragmentShaderSource);
-		return GLShader::create(glslVertexShaderSource, glslFragmentShaderSource, uniformBuffers, texture2DInfos);
+		const VertexBufferLayout vertexBufferLayout = ShaderReflection::getBufferLayout(vertexShaderSource);
+		return GLShader::create(glslVertexShaderSource, glslFragmentShaderSource, vertexBufferLayout, uniformBuffers, texture2DInfos);
 	}
 
 	unsigned int ks::GLShader::getID() const noexcept

@@ -28,7 +28,7 @@ namespace ks
 		GLRenderBuffer(const void * vertexBuffer,
 			const unsigned int vertexCount,
 			const unsigned int vertexStride,
-			const VertexBufferLayout & layout,
+			const IShader & shader,
 			const void * indexBufferData,
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type);
@@ -37,7 +37,6 @@ namespace ks
 		void setClearBufferFlags(const ks::ClearBufferFlags& flags) override;
 		void setClearColor(const glm::vec4& clearColor) override;
 		void setViewport(const int x, const int y, const int width, const int height) override;
-		void setShader(const IShader & shader) override;
 		void setBlendState(const IBlendState & blendState) override;
 		void setDepthStencilState(const IDepthStencilState & depthStencilState) override;
 		void setRasterizerState(const IRasterizerState & rasterizerState) override;

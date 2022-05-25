@@ -13,7 +13,7 @@
 
 struct DataSource
 {
-	bool isEnableSaveImage = false;
+	std::function<bool()> isSaveImage;
 	float intensity = 1.0;
 } dataSource;
 
@@ -118,8 +118,16 @@ int main(int argc, char** argv)
 			static int counter = 0;
 
 			ImGui::Begin("D3D11Example");
-			ImGui::Checkbox("Is enable save image", &dataSource.isEnableSaveImage);
+			if (ImGui::Button("Save image"))
+			{
+				dataSource.isSaveImage = []()
+				{
+					dataSource.isSaveImage = std::function<bool()>();
+					return true;
+				};
+			}
 			ImGui::SliderFloat("Intensity", &dataSource.intensity, 0.0, 1.0);
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
 
@@ -252,11 +260,6 @@ void frameTick()
 		glm::vec4 aColor;
 	};
 
-	ks::VertexBufferLayout layout = ks::VertexBufferLayout()
-		.f32(2, ks::VertexBufferElement::Semantics::position)
-		.f32(2, ks::VertexBufferElement::Semantics::texcoord)
-		.f32(4, ks::VertexBufferElement::Semantics::color);
-
 	std::vector<unsigned int> indexBufferData = { 0, 1, 2, 2, 1, 3 };
 
 	std::vector<Vertex> vertexBuffer;
@@ -285,16 +288,14 @@ void frameTick()
 		vertexBuffer.push_back(bottomRight);
 	}
 
-	static ks::PixelBuffer* pixelBufferPtr = new ks::PixelBuffer(1000, 1000, ks::PixelBuffer::FormatType::rgba8);
-	ks::PixelBuffer& pixelBuffer = *pixelBufferPtr;
+	static ks::PixelBuffer& pixelBuffer = *(new ks::PixelBuffer(1000, 1000, ks::PixelBuffer::FormatType::rgba8));
 	ks::ITexture2D* colorMap = engine.createTexture2D(imageData->getWidth(), imageData->getHeight(), ks::TextureFormat::R8G8B8A8_UNORM, imageData->getImmutableData()[0]);
 	ks::IFrameBuffer* frameBuffer = engine.createFrameBuffer(1000, 1000);
 	ks::IShader* shader = engine.createShader(vert, frag);
-	shader->bind();
 	shader->setUniform("Uniforms.intensity", ks::UniformValue(dataSource.intensity));
 	shader->setTexture2D("colorMap", *colorMap);
 	ks::IRenderBuffer * renderBuffer = engine.createRenderBuffer(vertexBuffer.data(), vertexBuffer.size(), sizeof(Vertex),
-		layout,
+		*shader,
 		indexBufferData.data(), indexBufferData.size(), ks::IIndexBuffer::IndexDataType::uint32);
 	ks::IBlendState* blendState = engine.createBlendState(ks::BlendStateDescription::Addition::getDefault(), ks::BlendStateDescription::getDefault());
 	ks::IDepthStencilState* depthStencilState = engine.createDepthStencilState(ks::DepthStencilStateDescription::getDefault());
@@ -302,14 +303,13 @@ void frameTick()
 	renderBuffer->setClearColor(glm::vec4(0.0, 0.0, 0.0, 0.0));
 	renderBuffer->setViewport(0, 0, 1000, 1000);
 	renderBuffer->setClearBufferFlags(ks::ClearBufferFlags::color);
-	renderBuffer->setShader(*shader);
 	renderBuffer->setBlendState(*blendState);
 	renderBuffer->setDepthStencilState(*depthStencilState);
 	renderBuffer->setRasterizerState(*rasterizerState);
 	renderBuffer->setPrimitiveTopologyType(ks::PrimitiveTopologyType::trianglelist);
 	renderBuffer->commit(*frameBuffer);
 
-	if (dataSource.isEnableSaveImage)
+	if (dataSource.isSaveImage && dataSource.isSaveImage())
 	{
 		engine.readTexture(frameBuffer, pixelBuffer);
 		const std::string targetPath = fmt::format("{}/{}.png", ks::Application::getAppDir(), "D3D11Example");
