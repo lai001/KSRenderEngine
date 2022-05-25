@@ -1,10 +1,10 @@
-#ifndef KSRENDERENGINESHADER_HPP
-#define KSRENDERENGINESHADER_HPP
+#ifndef KSRenderEngine_Interface_Shader_hpp
+#define KSRenderEngine_Interface_Shader_hpp
 
 #include <string>
-#include "Uniform.hpp"
-#include "Texture2D.hpp"
+#include "Common/Uniform.hpp"
 #include "Common/Deletable.hpp"
+#include "Texture2D.hpp"
 
 namespace ks
 {
@@ -26,4 +26,4 @@ namespace ks
 	};
 }
 
-#endif // !KSRENDERENGINESHADER_HPP
+#endif // !KSRenderEngine_Interface_Shader_hpp

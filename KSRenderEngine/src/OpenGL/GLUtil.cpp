@@ -182,7 +182,12 @@ namespace ks
 			}
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 			glDeleteBuffers(1, &downloadPboId);
-			assert(ks::GLErrorChecker::isNoError());
+
+			const std::optional<GLErrorDescription> glErrorDesc = ks::GLErrorChecker::getError();
+			if (glErrorDesc)
+			{
+				assert(false);
+			}
 		}
 
 	}

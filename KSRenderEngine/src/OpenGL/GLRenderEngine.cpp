@@ -36,15 +36,15 @@ namespace ks
 		ks::GLErrorChecker::enableDebugMessageCallback(&errorFilter, flag);
 	}
 
-	IShader * GLRenderEngine::createShader(const std::string& VertexShaderSource,
-		const std::string& FragmentShaderSource,
-		const std::vector<UniformInfo>& createInfos,
+	IShader * GLRenderEngine::createShader(const std::string& vertexShaderSource,
+		const std::string& fragmentShaderSource,
+		const std::vector<UniformBufferInfo>& uniformBuffers,
 		const std::vector<ShaderTexture2DInfo> texture2DInfos,
 		const ks::VertexBufferLayout& layout)
 	{
-		return GLShader::create(VertexShaderSource,
-			FragmentShaderSource,
-			createInfos,
+		return GLShader::create(vertexShaderSource,
+			fragmentShaderSource,
+			uniformBuffers,
 			texture2DInfos);
 	}
 

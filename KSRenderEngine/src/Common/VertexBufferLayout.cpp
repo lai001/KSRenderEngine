@@ -1,4 +1,4 @@
-#include "Interface/VertexBufferLayout.hpp"
+#include "Common/VertexBufferLayout.hpp"
 
 namespace ks
 {

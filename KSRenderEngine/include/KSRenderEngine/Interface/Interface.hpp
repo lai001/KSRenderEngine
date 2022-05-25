@@ -1,5 +1,5 @@
-#ifndef KSRENDERENGINEINTERFACEHPP
-#define KSRENDERENGINEINTERFACEHPP
+#ifndef KSRenderEngine_Interface_Interface_hpp
+#define KSRenderEngine_Interface_Interface_hpp
 
 #include "FrameBuffer.hpp"
 #include "IndexBuffer.hpp"
@@ -8,9 +8,10 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "Texture2D.hpp"
-#include "Uniform.hpp"
 #include "VertexBuffer.hpp"
-#include "VertexBufferElement.hpp"
-#include "VertexBufferLayout.hpp"
+#include "ConstantBuffer.hpp"
+#include "RasterizerState.hpp"
+#include "DepthStencilState.hpp"
+#include "BlendState.hpp"
 
-#endif // !KSRENDERENGINEINTERFACEHPP
+#endif // !KSRenderEngine_Interface_Interface_hpp

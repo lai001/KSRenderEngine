@@ -27,11 +27,16 @@ rule("Example.deps")
 rule("Example.copy")
     after_build(function (target)
         local resourceDir = path.join(target:targetdir(), "Resource")
+        local shaderDir = path.join(resourceDir, "Shader")
         if os.exists(resourceDir) == false then
             os.mkdir(resourceDir)
         end
+        if os.exists(shaderDir) == false then
+            os.mkdir(shaderDir)
+        end
         os.cp("vendor/*.jpg", resourceDir)
         os.cp("vendor/*.png", resourceDir)
+        os.cp("Shader/*.hlsl", shaderDir)
     end)
 
 target("OpenGLExample")
@@ -100,3 +105,9 @@ target("ImGuiD3D11")
     add_headerfiles("Vendor/imgui/*.h")
     add_headerfiles("Vendor/imgui/backends/imgui_impl_win32.h")
     add_headerfiles("Vendor/imgui/backends/imgui_impl_dx11.h")
+
+target("Resource")
+    set_kind("phony")
+    add_headerfiles("Shader/*.hlsl")
+    add_headerfiles("Vendor/*.jpg")
+    add_headerfiles("Vendor/*.png")

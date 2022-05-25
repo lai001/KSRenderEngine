@@ -2,7 +2,7 @@
 #define KSRENDERENGIUniform
 #include <glm/glm.hpp>
 #include <string>
-#include "Texture2D.hpp"
+#include "Interface/Texture2D.hpp"
 
 namespace ks
 {
@@ -48,7 +48,17 @@ namespace ks
 	public:
 		std::string name;
 		UniformValue::Type type;
+		explicit UniformInfo() { }
 		explicit UniformInfo(const std::string& name, const UniformValue::Type type) :name(name), type(type) { }
+	};
+
+	struct UniformBufferInfo
+	{
+	public:
+		std::string name;
+		std::vector<UniformInfo> uniformInfos;
+		explicit UniformBufferInfo() { }
+		explicit UniformBufferInfo(const std::string& name, const std::vector<UniformInfo>& uniformInfos) :name(name), uniformInfos(uniformInfos) { }
 	};
 
 	struct ShaderTexture2DInfo

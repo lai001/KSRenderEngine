@@ -7,13 +7,13 @@
 #include "Texture.hpp"
 #include "Texture2D.hpp"
 #include "VertexBuffer.hpp"
-#include "VertexBufferLayout.hpp"
-#include "Uniform.hpp"
 #include "RenderBuffer.hpp"
 #include "BlendState.hpp"
 #include "RasterizerState.hpp"
 #include "DepthStencilState.hpp"
 
+#include "Common/VertexBufferLayout.hpp"
+#include "Common/Uniform.hpp"
 #include "Common/Deletable.hpp"
 #include "Common/Texture2DDescription.hpp"
 #include "Common/BlendStateDescription.hpp"
@@ -26,10 +26,10 @@ namespace ks
 	{
 	public:
 		virtual IFrameBuffer* createFrameBuffer(const int width, const int height) = 0;
-		virtual IShader* createShader(const std::string& VertexShaderSource,
-			const std::string& FragmentShaderSource, 
-			const std::vector<UniformInfo>& createInfos,
-			const std::vector<ShaderTexture2DInfo> texture2DInfo,
+		virtual IShader* createShader(const std::string& vertexShaderSource,
+			const std::string& fragmentShaderSource,
+			const std::vector<UniformBufferInfo>& uniformBuffers,
+			const std::vector<ShaderTexture2DInfo> texture2DInfos,
 			const ks::VertexBufferLayout& layout) = 0;
 
 		virtual IShader* createShader(const std::string& VertexShaderSource,

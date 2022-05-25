@@ -1,5 +1,5 @@
-#ifndef KSRENDERENGITexture
-#define KSRENDERENGITexture
+#ifndef KSRenderEngine_Interface_Texture_hpp
+#define KSRenderEngine_Interface_Texture_hpp
 #include <Foundation/Foundation.hpp>
 #include "Common/Deletable.hpp"
 
@@ -15,4 +15,4 @@ namespace ks
 	};
 }
 
-#endif // !KSRENDERENGITexture
+#endif // !KSRenderEngine_Interface_Texture_hpp

@@ -119,12 +119,12 @@ namespace ks
 		constantBuffer->Release();
 	}
 
-	D3D11Shader * D3D11Shader::create(const std::string & vertexShaderSource,
-		const std::string & fragmentShaderSource,
-		const std::vector<UniformInfo> uniformInfos,
-		std::vector<ShaderTexture2DInfo> texture2DInfos,
+	D3D11Shader * D3D11Shader::create(const std::string& vertexShaderSource,
+		const std::string& fragmentShaderSource,
+		const std::vector<UniformBufferInfo> uniformBuffers,
+		const std::vector<ShaderTexture2DInfo> texture2DInfos,
 		const ks::VertexBufferLayout& layout,
-		const D3D11RenderEngineInfo & engineInfo)
+		const D3D11RenderEngineInfo& engineInfo)
 	{
 		ID3DBlob* vertexShaderBlob = nullptr;
 		ID3D11VertexShader* vertexShader = nullptr;
@@ -189,9 +189,16 @@ namespace ks
 		shader->pixelShaderBlob = pixelShaderBlob;
 		shader->vertexShader = vertexShader;
 		shader->vertexShaderBlob = vertexShaderBlob;
-		shader->uniformInfos = uniformInfos;
 		shader->texture2DInfos = texture2DInfos;
-		shader->initConstantBuffer(uniformInfos);
+		if (uniformBuffers.empty() == false)
+		{
+			shader->uniformInfos = uniformBuffers.at(0).uniformInfos;
+			shader->initConstantBuffer(uniformBuffers.at(0).uniformInfos);
+		}
+		if (uniformBuffers.size() > 1)
+		{
+			assert(false); // TODO:
+		}
 		cleanBlock = []() {};
 		return shader;
 	}
@@ -201,9 +208,9 @@ namespace ks
 		const D3D11RenderEngineInfo & engineInfo)
 	{
 		VertexBufferLayout layout = ShaderReflection::getBufferLayout(vertexShaderSource);
-		std::vector<UniformInfo> uniformInfos = ShaderReflection::getFragUniformInfos(fragmentShaderSource);
+		std::vector<UniformBufferInfo> uniformBuffers = ShaderReflection::getFragUniformBuffers(fragmentShaderSource);
 		std::vector<ShaderTexture2DInfo> texture2DInfos = ShaderReflection::getFragTexture2DNmaes(fragmentShaderSource);
-		return create(vertexShaderSource, fragmentShaderSource, uniformInfos, texture2DInfos, layout, engineInfo);
+		return create(vertexShaderSource, fragmentShaderSource, uniformBuffers, texture2DInfos, layout, engineInfo);
 	}
 
 	void D3D11Shader::bind() const

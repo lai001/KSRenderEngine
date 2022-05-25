@@ -82,60 +82,12 @@ void imaguiTick()
 
 void frameTick()
 {
-	const std::string vert =
-		R"(
-struct VS_INPUT
-{
-    float2 pos : POSITION;
-	float2 texCoord : TEXCOORD;
-    float4 col : COLOR0;
-};
-            
-struct PS_INPUT
-{
-    float4 pos : SV_POSITION;
-	float2 texCoord : TEXCOORD;
-    float4 col : COLOR0;
-};
-            
-PS_INPUT main(VS_INPUT input)
-{
-    PS_INPUT output;
-    output.pos = float4(input.pos.xy, 0.0f, 1.0f);
-    output.col = input.col;
-	output.texCoord = input.texCoord;
-    return output;
-}
-)";
+	static const std::string vert = ks::File::read(ks::Application::getResourcePath("Shader/vert.hlsl"), nullptr);
+	static const std::string frag = ks::File::read(ks::Application::getResourcePath("Shader/frag.hlsl"), nullptr);
 
-	const std::string frag =
-		R"(
-cbuffer Uniforms : register(b0)
-{
-    float intensity;
-}
+	static const std::unique_ptr <const ks::PixelBuffer> imageData = ImageIO::readImageFromFilePath2(ks::Application::getResourcePath("maple.jpg"));
 
-struct PS_INPUT
-{
-    float4 pos : SV_POSITION;
-	float2 texCoord : TEXCOORD;
-    float4 col : COLOR0;
-};
-
-Texture2D colorMap: register(t0);
-SamplerState colorMapSampler: register(s0);
-
-float4 main(PS_INPUT vertexOut) : SV_Target
-{
-	float4 color = lerp(vertexOut.col * intensity, colorMap.Sample(colorMapSampler, vertexOut.texCoord), 0.5f);
-	return color;
-}
-)";
-
-	std::unique_ptr < ks::PixelBuffer > imageData = ImageIO::readImageFromFilePath2(ks::Application::getResourcePath("maple.jpg"));
-
-	static ks::IRenderEngine* enginePtr = ks::RenderEngine::create(ks::GLRenderEngineCreateInfo());
-	ks::IRenderEngine& engine = *enginePtr;
+	static ks::IRenderEngine& engine = *ks::RenderEngine::create(ks::GLRenderEngineCreateInfo());
 
 	struct Vertex
 	{
@@ -177,8 +129,7 @@ float4 main(PS_INPUT vertexOut) : SV_Target
 		vertexBuffer.push_back(bottomRight);
 	}
 
-	static ks::PixelBuffer* pixelBufferPtr = new ks::PixelBuffer(1000, 1000, ks::PixelBuffer::FormatType::rgba8);
-	ks::PixelBuffer& pixelBuffer = *pixelBufferPtr;
+	static ks::PixelBuffer& pixelBuffer = *(new ks::PixelBuffer(1000, 1000, ks::PixelBuffer::FormatType::rgba8));
 	ks::IFrameBuffer* frameBuffer = engine.createFrameBuffer(1000, 1000);
 	ks::ITexture2D* colorMap = engine.createTexture2D(imageData->getWidth(), imageData->getHeight(), ks::TextureFormat::R8G8B8A8_UNORM, imageData->getImmutableData()[0]);
 	ks::IShader* shader = engine.createShader(vert, frag);

@@ -10,5 +10,8 @@
 #include "ShaderConductorHelper.hpp"
 #include "ShaderReflection.hpp"
 #include "Deletable.hpp"
+#include "Uniform.hpp"
+#include "VertexBufferElement.hpp"
+#include "VertexBufferLayout.hpp"
 
 #endif // !KSRenderEngine_Common_Common_hpp

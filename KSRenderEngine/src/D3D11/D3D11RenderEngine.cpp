@@ -24,16 +24,16 @@ namespace ks
 		return framBuffer;
 	}
 
-	IShader * D3D11RenderEngine::createShader(const std::string& VertexShaderSource,
-		const std::string& FragmentShaderSource,
-		const std::vector<UniformInfo>& createInfos,
-		const std::vector<ShaderTexture2DInfo> texture2DInfo,
+	IShader * D3D11RenderEngine::createShader(const std::string& vertexShaderSource,
+		const std::string& fragmentShaderSource,
+		const std::vector<UniformBufferInfo>& uniformBuffers,
+		const std::vector<ShaderTexture2DInfo> texture2DInfos,
 		const ks::VertexBufferLayout& layout)
 	{
-		D3D11Shader* shader = D3D11Shader::create(VertexShaderSource,
-			FragmentShaderSource,
-			createInfos,
-			texture2DInfo,
+		D3D11Shader* shader = D3D11Shader::create(vertexShaderSource,
+			fragmentShaderSource,
+			uniformBuffers,
+			texture2DInfos,
 			layout,
 			engineInfo);
 		return shader;

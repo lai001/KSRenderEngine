@@ -2,8 +2,8 @@
 #define KSRenderEngine_OpenGL_GLVertexBuffer_hpp
 
 #include <Foundation/Foundation.hpp>
+#include "Common/VertexBufferLayout.hpp"
 #include "Interface/VertexBuffer.hpp"
-#include "Interface/VertexBufferLayout.hpp"
 
 namespace ks
 {

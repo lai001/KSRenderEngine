@@ -1,5 +1,5 @@
-#ifndef KSRENDERENGIVertexBuffer
-#define KSRENDERENGIVertexBuffer
+#ifndef KSRenderEngine_Interface_VertexBuffer_hpp
+#define KSRenderEngine_Interface_VertexBuffer_hpp
 #include "Common/Deletable.hpp"
 
 namespace ks
@@ -13,4 +13,4 @@ namespace ks
 	};
 }
 
-#endif // !KSRENDERENGIVertexBuffer
+#endif // !KSRenderEngine_Interface_VertexBuffer_hpp

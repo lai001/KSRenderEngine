@@ -3,6 +3,7 @@
 namespace ks
 {
 	const std::string ShaderReflection::Texture2DPrefix = "SPIRV_Cross_Combined";
+	const std::string ShaderReflection::ConstantBlockPrefix = "type_";
 }
 
 namespace ks
@@ -122,6 +123,7 @@ namespace ks
 
 	std::vector<UniformInfo> ShaderReflection::getVertexUniformInfos(const std::string & shaderCode, const std::string & entryPoint)
 	{
+		assert(false); // TODO:
 		ResultDesc desc = ShaderConductorHelper::VSHLSL2SPIRV(shaderCode, entryPoint);
 		desc = ShaderConductorHelper::disassembleSPIRV(reinterpret_cast<const unsigned char *>(desc.target.Data()), desc.target.Size());
 		const std::string info = std::string(reinterpret_cast<const char *>(desc.target.Data()), desc.target.Size());
@@ -152,10 +154,42 @@ namespace ks
 		return uniformInfos;
 	}
 
+	std::vector<UniformBufferInfo> ShaderReflection::getVertexUniformBuffers(const std::string & shaderCode, const std::string & entryPoint)
+	{
+		assert(false); // TODO:
+		return std::vector<UniformBufferInfo>();
+	}
+
+	std::vector<UniformBufferInfo> ShaderReflection::getFragUniformBuffers(const std::string & shaderCode, const std::string & entryPoint)
+	{
+		ResultDesc result = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
+		assert(result.hasError == false);
+		assert(result.reflection.Valid());
+
+		std::vector<UniformBufferInfo> uniformBuffers;
+
+		for (unsigned int i = 0; i < result.reflection.NumConstantBuffers(); i++)
+		{
+			const ConstantBuffer& constantBuffer = *result.reflection.ConstantBufferByIndex(i);
+			std::vector<UniformInfo> uniformInfos;
+			for (unsigned int numVariablesIdx = 0; numVariablesIdx < constantBuffer.NumVariables(); numVariablesIdx++)
+			{
+				const VariableDesc& variableDesc = *constantBuffer.VariableByIndex(numVariablesIdx);
+				const UniformInfo uniformInfo = getUniformInfo(constantBuffer, variableDesc);
+				uniformInfos.push_back(uniformInfo);
+			}
+			const UniformBufferInfo uniformBuffer = UniformBufferInfo(constantBuffer.Name(), uniformInfos);
+			uniformBuffers.push_back(uniformBuffer);
+		}
+
+		return uniformBuffers;
+	}
+
 	std::vector<ShaderTexture2DInfo> ShaderReflection::getVertexTexture2DNmaes(const std::string & shaderCode, const std::string & entryPoint)
 	{
-		std::vector<ShaderTexture2DInfo> infos;
+		assert(false); // TODO:
 
+		std::vector<ShaderTexture2DInfo> infos;
 		return infos;
 	}
 

@@ -1,4 +1,4 @@
-#include "Interface/Uniform.hpp"
+#include "Common/Uniform.hpp"
 
 namespace ks
 {

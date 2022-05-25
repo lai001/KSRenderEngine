@@ -4,8 +4,8 @@
 #include <vector>
 #include <Foundation/Foundation.hpp>
 #include "ShaderConductorHelper.hpp"
-#include "Interface/Uniform.hpp"
-#include "Interface/VertexBufferLayout.hpp"
+#include "Common/Uniform.hpp"
+#include "Common/VertexBufferLayout.hpp"
 
 namespace ks
 {
@@ -29,11 +29,16 @@ namespace ks
 	public:
 		static std::vector<UniformInfo> getVertexUniformInfos(const std::string& shaderCode, const std::string& entryPoint = "main");
 		static std::vector<UniformInfo> getFragUniformInfos(const std::string& shaderCode, const std::string& entryPoint = "main");
+
+		static std::vector<UniformBufferInfo> getVertexUniformBuffers(const std::string& shaderCode, const std::string& entryPoint = "main");
+		static std::vector<UniformBufferInfo> getFragUniformBuffers(const std::string& shaderCode, const std::string& entryPoint = "main");
+
 		static std::vector<ShaderTexture2DInfo> getVertexTexture2DNmaes(const std::string& shaderCode, const std::string& entryPoint = "main");
 		static std::vector<ShaderTexture2DInfo> getFragTexture2DNmaes(const std::string& shaderCode, const std::string& entryPoint = "main");
 		static VertexBufferLayout getBufferLayout(const std::string& shaderCode, const std::string& entryPoint = "main");
 
 		static const std::string Texture2DPrefix;
+		static const std::string ConstantBlockPrefix;
 	};
 }
 

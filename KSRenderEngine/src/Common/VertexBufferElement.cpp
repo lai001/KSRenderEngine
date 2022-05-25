@@ -1,4 +1,4 @@
-#include "Interface/VertexBufferElement.hpp"
+#include "Common/VertexBufferElement.hpp"
 #include <unordered_map>
 #include <assert.h>
 

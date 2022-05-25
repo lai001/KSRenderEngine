@@ -29,14 +29,13 @@ namespace ks
 		size_t caclSize(const std::vector<UniformInfo>& uniformInfos, const PackingRules& packingRules);
 		size_t getOffset(const std::vector<UniformInfo>& uniformInfos, const PackingRules& packingRules, const UniformInfo& uniformInfo);
 		size_t getSize(const UniformValue::Type dataType);
-
 		PackingRules getPackingRules() const noexcept;
 
 	public:
 		~D3D11Shader();
 		static D3D11Shader* create(const std::string& vertexShaderSource, 
 			const std::string& fragmentShaderSource, 
-			const std::vector<UniformInfo> uniformInfos,
+			const std::vector<UniformBufferInfo> uniformBuffers,
 			const std::vector<ShaderTexture2DInfo> texture2DInfos,
 			const ks::VertexBufferLayout& layout,
 			const D3D11RenderEngineInfo& engineInfo);

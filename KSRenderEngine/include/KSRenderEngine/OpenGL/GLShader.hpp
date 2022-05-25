@@ -8,8 +8,10 @@
 #include <glm/glm.hpp>
 
 #include "Interface/Shader.hpp"
-#include "Interface/Uniform.hpp"
+#include "GLUniformBuffer.hpp"
+#include "Common/Uniform.hpp"
 #include "Common/RendererError.hpp"
+#include "Common/PackingRules.hpp"
 #include "GLTexture.hpp"
 
 namespace ks
@@ -17,35 +19,35 @@ namespace ks
 	class GLShader : public noncopyable, public IShader
 	{
 	private:
-		std::vector<UniformInfo> uniformCreateInfos;
+		std::vector<GLUniformBuffer*> constantBuffers;
+		std::vector<UniformBufferInfo> uniformBuffers;
 		std::vector<ShaderTexture2DInfo> texture2DInfos;
-		std::unordered_map<std::string, int> uniformLocations;
+		std::unordered_map<std::string, int> uniformTexture2DLocations;
 
-		void findUniformLocations();
-		void SetUniform4f(const std::string& Name, float V0, float V1, float V2, float V3);
-		void SetUniform4fv(const std::string& Name, const glm::vec4& Value, const unsigned int count = 1);
-		void SetUniform3f(const std::string& Name, float V0, float V1, float V2);
-		void SetUniform3fv(const std::string& Name, const glm::vec3 &Value, const unsigned int count = 1);
-		void SetUniform1i(const std::string & Name, int V0);
-		void SetUniform1f(const std::string & Name, float V0);
-		void SetUniformMat4fv(const std::string & Name, const glm::mat4& Matrix, const unsigned int count = 1);
+		void findUniformTexture2DLocations();
 		static unsigned int compileShader(const IShader::Type shaderType, const std::string & shaderSource, RendererError* error);
 
 		ShaderTexture2DInfo load(const ShaderTexture2DInfo& info);
 
+		void initConstantBuffer(const std::vector<UniformBufferInfo>& uniformBuffers);
+
+		void useProgram() const;
+		void unuseProgram() const;
+
 	public:
 		~GLShader();
 
-		static unsigned int InvalidID;
-		unsigned int RendererID = GLShader::InvalidID;
+		unsigned int RendererID;
 
 		static GLShader* create(const std::string& vertexShaderSource,
 			const std::string& fragmentShaderSource,
-			const std::vector<UniformInfo> createInfos,
+			const std::vector<UniformBufferInfo> uniformBuffers,
 			const std::vector<ShaderTexture2DInfo> texture2DInfos);
 
 		static GLShader* create(const std::string& vertexShaderSource,
 			const std::string& fragmentShaderSource);
+
+		unsigned int getID() const noexcept;
 
 		void setUniform(const std::string& name, const UniformValue& value) override;
 		void setTexture2D(const std::string & name, const ITexture2D & texture2D) override;
