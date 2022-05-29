@@ -48,6 +48,32 @@ namespace ks
 		d3d11Texture2D->texture2D = texture2D;
 		d3d11Texture2D->texture2DDescription = texture2DDescription;
 		d3d11Texture2D->engineInfo = engineInfo;
+
+		if (texture2DDescription.bindFlag.isContains(ks::TextureBindFlag::shaderResource))
+		{
+			D3D11_TEX2D_SRV tex2dSRV;
+			tex2dSRV.MipLevels = texture2DDescription.mipLevels;
+			tex2dSRV.MostDetailedMip = 0;
+			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+			shaderResourceViewDesc.Format = d3d11Texture2D->getNativeTextureFormat();
+			shaderResourceViewDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
+			shaderResourceViewDesc.Texture2D = tex2dSRV;
+			status = d3dDevice->CreateShaderResourceView(texture2D, &shaderResourceViewDesc, &d3d11Texture2D->texture2DResourceView);
+			assert(SUCCEEDED(status));
+
+			D3D11_SAMPLER_DESC samplerDesc;
+			samplerDesc.MaxAnisotropy = 4;
+			samplerDesc.MipLODBias = 1.0;
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+			samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+			samplerDesc.MinLOD = 0.0;
+			samplerDesc.MaxLOD = 1.0;
+			status = d3dDevice->CreateSamplerState(&samplerDesc, &d3d11Texture2D->samplerState);
+			assert(SUCCEEDED(status));
+		}
+
 		return d3d11Texture2D;
 	}
 
@@ -92,31 +118,6 @@ namespace ks
 			}
 			context->Unmap(texture2D, 0);
 
-			{
-				D3D11_TEX2D_SRV tex2dSRV;
-				tex2dSRV.MipLevels = texture2DDescription.mipLevels;
-				tex2dSRV.MostDetailedMip = 0;
-				D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-				shaderResourceViewDesc.Format = d3d11Texture2D->getNativeTextureFormat();
-				shaderResourceViewDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
-				shaderResourceViewDesc.Texture2D = tex2dSRV;
-				status = d3dDevice->CreateShaderResourceView(texture2D, &shaderResourceViewDesc, &d3d11Texture2D->texture2DResourceView);
-				assert(SUCCEEDED(status));
-			}
-
-			{
-				HRESULT status = S_OK;
-				D3D11_SAMPLER_DESC samplerDesc;
-				samplerDesc.MaxAnisotropy = 4;
-				samplerDesc.MipLODBias = 1.0;
-				samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-				samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-				samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-				samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-				status = d3dDevice->CreateSamplerState(&samplerDesc, &d3d11Texture2D->samplerState);
-				assert(SUCCEEDED(status));
-			}
-
 			return d3d11Texture2D;
 		}
 		else
@@ -133,7 +134,7 @@ namespace ks
 		Texture2DDescription texture2DDescription;
 		texture2DDescription.width = width;
 		texture2DDescription.height = height;
-		texture2DDescription.bindFlag = TextureBindFlag::renderTarget;
+		texture2DDescription.bindFlag = TextureBindFlag::renderTarget | TextureBindFlag::shaderResource;
 		texture2DDescription.usage = TextureUsage::default;
 		texture2DDescription.mipLevels = 1;
 		texture2DDescription.miscFlag = ResourceMiscFlag();
@@ -175,13 +176,9 @@ namespace ks
 		ID3D11Device *d3dDevice = engineInfo.device;
 		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
 
-		D3D11_TEXTURE2D_DESC texture2DDesc;
-		texture2D->GetDesc(&texture2DDesc);
-		if (texture2DDesc.BindFlags == D3D11_BIND_RENDER_TARGET)
-		{
-
-		}
-		else if (texture2DDesc.BindFlags == D3D11_BIND_SHADER_RESOURCE)
+		//D3D11_TEXTURE2D_DESC texture2DDesc;
+		//texture2D->GetDesc(&texture2DDesc);
+		if (texture2DDescription.bindFlag.isContains(ks::TextureBindFlag::shaderResource))
 		{
 			assert(texture2DResourceView);
 			assert(samplerState);

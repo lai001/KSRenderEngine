@@ -134,7 +134,11 @@ namespace ks
 	std::vector<UniformInfo> ShaderReflection::getFragUniformInfos(const std::string & shaderCode, const std::string & entryPoint)
 	{
 		ResultDesc result = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
-		assert(result.hasError == false);
+		if (result.hasError)
+		{
+			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
+			assert(result.hasError == false);
+		}
 		assert(result.reflection.Valid());
 
 		std::vector<UniformInfo> uniformInfos;
@@ -163,8 +167,14 @@ namespace ks
 	std::vector<UniformBufferInfo> ShaderReflection::getFragUniformBuffers(const std::string & shaderCode, const std::string & entryPoint)
 	{
 		ResultDesc result = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
-		assert(result.hasError == false);
+		if (result.hasError)
+		{
+			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
+			assert(result.hasError == false);
+		}
 		assert(result.reflection.Valid());
+
+		std::string glslCode = std::string(reinterpret_cast<const char*>(result.target.Data()), result.target.Size());
 
 		std::vector<UniformBufferInfo> uniformBuffers;
 
@@ -196,7 +206,11 @@ namespace ks
 	std::vector<ShaderTexture2DInfo> ShaderReflection::getFragTexture2DNmaes(const std::string & shaderCode, const std::string & entryPoint)
 	{
 		ResultDesc result = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
-		assert(result.hasError == false);
+		if (result.hasError)
+		{
+			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
+			assert(result.hasError == false);
+		}
 		assert(result.reflection.Valid());
 		//std::string code = std::string(reinterpret_cast<const char*>(result.target.Data()), result.target.Size());
 		std::vector<ShaderTexture2DInfo> infos;
@@ -244,8 +258,12 @@ namespace ks
 	{
 		VertexBufferLayout layout = VertexBufferLayout();
 		ResultDesc result = ShaderConductorHelper::VSHLSL2GLSL(shaderCode, entryPoint);
-
-		assert(result.hasError == false);
+		
+		if (result.hasError)
+		{
+			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
+			assert(result.hasError == false);
+		}
 		assert(result.reflection.Valid());
 
 		for (unsigned int i = 0; i < result.reflection.NumInputParameters(); i++)

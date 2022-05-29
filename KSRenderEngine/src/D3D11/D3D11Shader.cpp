@@ -109,14 +109,17 @@ namespace ks
 		assert(pixelShaderBlob);
 		assert(pixelShader);
 		assert(inputLayout);
-		assert(constantBuffer);
 
 		vertexShaderBlob->Release();
 		vertexShader->Release();
 		pixelShaderBlob->Release();
 		pixelShader->Release();
 		inputLayout->Release();
-		constantBuffer->Release();
+
+		if (constantBuffer)
+		{
+			constantBuffer->Release();
+		}
 	}
 
 	D3D11Shader * D3D11Shader::create(const std::string& vertexShaderSource,
@@ -224,8 +227,11 @@ namespace ks
 		d3dDeviceContext->IASetInputLayout(inputLayout);
 		d3dDeviceContext->VSSetShader(vertexShader, nullptr, 0);
 		d3dDeviceContext->PSSetShader(pixelShader, nullptr, 0);
-		d3dDeviceContext->PSSetConstantBuffers(0, 1, &constantBuffer);
-		d3dDeviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
+		if (constantBuffer)
+		{
+			d3dDeviceContext->PSSetConstantBuffers(0, 1, &constantBuffer);
+			d3dDeviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
+		}
 	}
 
 	void D3D11Shader::unbind() const
@@ -239,6 +245,10 @@ namespace ks
 
 	void D3D11Shader::setUniform(const std::string & name, const UniformValue & value)
 	{
+		if (constantBuffer == nullptr)
+		{
+			return;
+		}
 		bool isFind = false;
 		for (const UniformInfo& info : uniformInfos)
 		{

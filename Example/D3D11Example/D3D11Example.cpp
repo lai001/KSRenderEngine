@@ -290,10 +290,10 @@ void frameTick()
 
 	static ks::PixelBuffer& pixelBuffer = *(new ks::PixelBuffer(1000, 1000, ks::PixelBuffer::FormatType::rgba8));
 	ks::ITexture2D* colorMap = engine.createTexture2D(imageData->getWidth(), imageData->getHeight(), ks::TextureFormat::R8G8B8A8_UNORM, imageData->getImmutableData()[0]);
-	ks::IFrameBuffer* frameBuffer = engine.createFrameBuffer(1000, 1000);
 	ks::IShader* shader = engine.createShader(vert, frag);
 	shader->setUniform("Uniforms.intensity", ks::UniformValue(dataSource.intensity));
 	shader->setTexture2D("colorMap", *colorMap);
+	ks::IFrameBuffer* frameBuffer = engine.createFrameBuffer(1000, 1000);
 	ks::IRenderBuffer * renderBuffer = engine.createRenderBuffer(vertexBuffer.data(), vertexBuffer.size(), sizeof(Vertex),
 		*shader,
 		indexBufferData.data(), indexBufferData.size(), ks::IIndexBuffer::IndexDataType::uint32);

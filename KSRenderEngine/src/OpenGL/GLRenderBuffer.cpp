@@ -13,6 +13,7 @@ namespace ks
 	{
 		this->shader = dynamic_cast<const GLShader*>(&shader);
 		assert(this->shader);
+		assert(this->shader->getVertexBufferLayout().getStride() == vertexStride);
 		vertexArray = std::make_unique<GLVertexArray>();
 		vertextBuffer = std::make_unique<GLVertexBuffer>(vertexBuffer, vertexCount, vertexStride, shader.getVertexBufferLayout());
 		indexBuffer = std::make_unique<GLIndexBuffer>(indexBufferData, indexCount, type);

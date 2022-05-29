@@ -25,12 +25,17 @@ namespace ks
 
 		void bind() const override;
 		void unbind() const override;
-		ITexture * getTexture() const override;
+		//ITexture * getTexture() const override;
+
+		ITexture2D * getColorTexture() const override;
 
 		ID3D11RenderTargetView* getNativeRenderTargetView() const;
 		D3D11RenderTargetView* getRenderTargetView() const;
 
 		void read(PixelBuffer& pixelBuffer) const;
+
+		unsigned int getWidth() const override;
+		unsigned int getHeight() const override;
 
 	private:
 		D3D11Texture2D* colorTexture2D = nullptr;

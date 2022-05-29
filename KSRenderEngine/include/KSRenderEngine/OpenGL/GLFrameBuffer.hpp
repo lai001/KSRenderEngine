@@ -32,7 +32,10 @@ namespace ks
 
 		void unbind() const override;
 
-		ITexture * getTexture() const override;
+		ITexture2D * getColorTexture() const override;
+
+		unsigned int getWidth() const override;
+		unsigned int getHeight() const override;
 	};
 }
 

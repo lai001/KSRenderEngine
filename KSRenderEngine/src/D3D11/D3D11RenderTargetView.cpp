@@ -35,7 +35,6 @@ namespace ks
 	void D3D11RenderTargetView::bind() const
 	{
 		assert(engineInfo.context);
-		assert(engineInfo.device);
 		ID3D11RenderTargetView *const *_view = &renderTargetView;
 		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
 		d3dDeviceContext->OMSetRenderTargets(1, _view, nullptr);
@@ -43,5 +42,8 @@ namespace ks
 
 	void D3D11RenderTargetView::unbind() const
 	{
+		assert(engineInfo.context);
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		d3dDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	}
 }

@@ -39,8 +39,18 @@ namespace ks
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	ITexture * GLFrameBuffer::getTexture() const
+	ITexture2D * GLFrameBuffer::getColorTexture() const
 	{
 		return colorTexture;
+	}
+
+	unsigned int GLFrameBuffer::getWidth() const
+	{
+		return width;
+	}
+
+	unsigned int GLFrameBuffer::getHeight() const
+	{
+		return height;
 	}
 }

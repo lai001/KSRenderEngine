@@ -14,6 +14,7 @@ namespace ks
 		:engineInfo(engineInfo)
 	{
 		this->shader = dynamic_cast<const D3D11Shader*>(&shader);
+		assert(this->shader->getVertexBufferLayout().getStride() == vertexStride);
 		vertextBuffer = std::make_unique<const D3D11VertexBuffer>(vertexBuffer, vertexCount, vertexStride, engineInfo);
 		indexBuffer = std::make_unique<const D3D11IndexBuffer>(indexBufferData, indexCount, type, engineInfo);
 	}
@@ -36,13 +37,13 @@ namespace ks
 		assert(rasterizerState);
 		assert(d3d11FrameBuffer);
 		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		d3d11FrameBuffer->bind();
 		shader->bind();
 		vertextBuffer->bind();
 		indexBuffer->bind();
 		blendState->bind();
 		depthStencilState->bind();
 		rasterizerState->bind();
-		d3d11FrameBuffer->bind();
 		if (clearBufferFlags.isContains(ClearBufferFlags::color))
 		{
 			d3dDeviceContext->ClearRenderTargetView(d3d11FrameBuffer->getNativeRenderTargetView(), glm::value_ptr(clearColor));
@@ -51,6 +52,8 @@ namespace ks
 		d3dDeviceContext->RSSetScissorRects(1, &scissorRect);
 		d3dDeviceContext->IASetPrimitiveTopology(getPrimitiveTopology(primitiveTopologyType));
 		d3dDeviceContext->DrawIndexed(indexBuffer->getCount(), 0, 0);
+
+		d3d11FrameBuffer->unbind();
 	}
 
 	D3D11_PRIMITIVE_TOPOLOGY D3D11RenderBuffer::getPrimitiveTopology(const ks::PrimitiveTopologyType &primitiveTopologyType) const

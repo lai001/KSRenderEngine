@@ -58,9 +58,10 @@ namespace ks
 
 	void D3D11FrameBuffer::unbind() const
 	{
+		renderTargetView->unbind();
 	}
 
-	ITexture * D3D11FrameBuffer::getTexture() const
+	ITexture2D * D3D11FrameBuffer::getColorTexture() const
 	{
 		return colorTexture2D;
 	}
@@ -109,5 +110,15 @@ namespace ks
 			srcData = srcData + i * mappedSubresource.RowPitch;
 			memcpy(destData, srcData, pixelBuffer.getWidth() * 4);
 		}
+	}
+
+	unsigned int D3D11FrameBuffer::getWidth() const
+	{
+		return	colorTexture2D->getWidth();
+	}
+
+	unsigned int D3D11FrameBuffer::getHeight() const
+	{
+		return	colorTexture2D->getHeight();
 	}
 }
