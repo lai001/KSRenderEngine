@@ -25,7 +25,6 @@ namespace ks
 
 		void bind() const override;
 		void unbind() const override;
-		//ITexture * getTexture() const override;
 
 		ITexture2D * getColorTexture() const override;
 

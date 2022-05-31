@@ -1,5 +1,5 @@
-#ifndef CLEARBUFFERFLAGSHPP
-#define CLEARBUFFERFLAGSHPP
+#ifndef KSRenderEngine_Common_ClearBufferFlags_hpp
+#define KSRenderEngine_Common_ClearBufferFlags_hpp
 
 #include <Foundation/Foundation.hpp>
 
@@ -15,4 +15,4 @@ namespace ks
 	};
 }
 
-#endif // !CLEARBUFFERFLAGSHPP
+#endif // !KSRenderEngine_Common_ClearBufferFlags_hpp

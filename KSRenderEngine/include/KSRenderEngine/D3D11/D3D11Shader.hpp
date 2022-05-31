@@ -15,6 +15,8 @@ namespace ks
 	class D3D11Shader: public noncopyable, public IShader
 	{
 	private:
+		std::vector<char> cpuConstantBuffer;
+
 		VertexBufferLayout vertexBufferLayout;
 		D3D11RenderEngineInfo engineInfo;
 		ID3DBlob* vertexShaderBlob = nullptr;

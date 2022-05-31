@@ -1,5 +1,5 @@
-#ifndef KSRENDERENGIIndexBuffer
-#define KSRENDERENGIIndexBuffer
+#ifndef KSRenderEngine_Interface_IndexBuffer_hpp
+#define KSRenderEngine_Interface_IndexBuffer_hpp
 #include "Common/Deletable.hpp"
 
 namespace ks
@@ -23,4 +23,4 @@ namespace ks
 	};
 }
 
-#endif // !KSRENDERENGIIndexBuffer
+#endif // !KSRenderEngine_Interface_IndexBuffer_hpp

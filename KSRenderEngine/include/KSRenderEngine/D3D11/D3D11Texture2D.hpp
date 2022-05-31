@@ -9,6 +9,7 @@
 #include <Foundation/Foundation.hpp>
 #include "Common/Texture2DDescription.hpp"
 #include "Interface/Texture2D.hpp"
+#include "Interface/FrameBuffer.hpp"
 #include "D3D11/D3D11RenderEngine.hpp"
 
 namespace ks
@@ -52,6 +53,8 @@ namespace ks
 
 		unsigned int getWidth() const;
 		unsigned int getHeight() const;
+
+		Texture2DDescription getTexture2DDescription() const;
 
 	protected:
 		D3D11Texture2D();

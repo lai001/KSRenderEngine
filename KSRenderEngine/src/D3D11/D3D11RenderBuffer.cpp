@@ -24,9 +24,13 @@ namespace ks
 
 	}
 
-	void D3D11RenderBuffer::commit(const IFrameBuffer & frameBuffer)
+	void D3D11RenderBuffer::commit(const IFrameBuffer * frameBuffer)
 	{
-		const D3D11FrameBuffer* d3d11FrameBuffer = dynamic_cast<const D3D11FrameBuffer *>(&frameBuffer);
+		const D3D11FrameBuffer* d3d11FrameBuffer = nullptr;
+		if (frameBuffer)
+		{
+			d3d11FrameBuffer = dynamic_cast<const D3D11FrameBuffer*>(frameBuffer);
+		}
 		assert(vertextBuffer);
 		assert(indexBuffer);
 		assert(engineInfo.context);
@@ -35,25 +39,29 @@ namespace ks
 		assert(blendState);
 		assert(depthStencilState);
 		assert(rasterizerState);
-		assert(d3d11FrameBuffer);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
-		d3d11FrameBuffer->bind();
-		shader->bind();
+		ID3D11DeviceContext& d3dDeviceContext = *engineInfo.context;
+		if (d3d11FrameBuffer)
+		{
+			d3d11FrameBuffer->bind();
+		}
 		vertextBuffer->bind();
 		indexBuffer->bind();
+		shader->bind();
 		blendState->bind();
 		depthStencilState->bind();
 		rasterizerState->bind();
-		if (clearBufferFlags.isContains(ClearBufferFlags::color))
+		if (clearBufferFlags.isContains(ClearBufferFlags::color) && d3d11FrameBuffer)
 		{
-			d3dDeviceContext->ClearRenderTargetView(d3d11FrameBuffer->getNativeRenderTargetView(), glm::value_ptr(clearColor));
+			d3dDeviceContext.ClearRenderTargetView(d3d11FrameBuffer->getNativeRenderTargetView(), glm::value_ptr(clearColor));
 		}
-		d3dDeviceContext->RSSetViewports(1, &viewport);
-		d3dDeviceContext->RSSetScissorRects(1, &scissorRect);
-		d3dDeviceContext->IASetPrimitiveTopology(getPrimitiveTopology(primitiveTopologyType));
-		d3dDeviceContext->DrawIndexed(indexBuffer->getCount(), 0, 0);
-
-		d3d11FrameBuffer->unbind();
+		d3dDeviceContext.RSSetViewports(1, &viewport);
+		d3dDeviceContext.RSSetScissorRects(1, &scissorRect);
+		d3dDeviceContext.IASetPrimitiveTopology(getPrimitiveTopology(primitiveTopologyType));
+		d3dDeviceContext.DrawIndexed(indexBuffer->getCount(), 0, 0);
+		if (d3d11FrameBuffer)
+		{
+			d3d11FrameBuffer->unbind();
+		}
 	}
 
 	D3D11_PRIMITIVE_TOPOLOGY D3D11RenderBuffer::getPrimitiveTopology(const ks::PrimitiveTopologyType &primitiveTopologyType) const

@@ -307,7 +307,7 @@ void frameTick()
 	renderBuffer->setDepthStencilState(*depthStencilState);
 	renderBuffer->setRasterizerState(*rasterizerState);
 	renderBuffer->setPrimitiveTopologyType(ks::PrimitiveTopologyType::trianglelist);
-	renderBuffer->commit(*frameBuffer);
+	renderBuffer->commit(frameBuffer);
 
 	if (dataSource.isSaveImage && dataSource.isSaveImage())
 	{

@@ -26,7 +26,9 @@ namespace ks
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		status = d3dDevice->CreateBuffer(&desc, nullptr, &constantBuffer);
-		assert(status == S_OK);
+		assert(cpuConstantBuffer.empty());
+		cpuConstantBuffer = std::vector<char>(desc.ByteWidth);
+		assert(SUCCEEDED(status));
 	}
 
 	size_t D3D11Shader::caclSize(const std::vector<UniformInfo>& uniformInfos, const PackingRules& packingRules)
@@ -229,6 +231,12 @@ namespace ks
 		d3dDeviceContext->PSSetShader(pixelShader, nullptr, 0);
 		if (constantBuffer)
 		{
+			HRESULT status = S_OK;
+			D3D11_MAPPED_SUBRESOURCE constant_resource;
+			status = d3dDeviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &constant_resource);
+			assert(SUCCEEDED(status));
+			memcpy(constant_resource.pData, cpuConstantBuffer.data(), cpuConstantBuffer.size());
+			d3dDeviceContext->Unmap(constantBuffer, 0);
 			d3dDeviceContext->PSSetConstantBuffers(0, 1, &constantBuffer);
 			d3dDeviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
 		}
@@ -238,9 +246,24 @@ namespace ks
 	{
 		ID3D11DeviceContext *context = engineInfo.context;
 		assert(context);
+
 		context->IASetInputLayout(nullptr);
 		context->VSSetShader(nullptr, nullptr, 0);
 		context->PSSetShader(nullptr, nullptr, 0);
+
+		for (size_t slot = 0; slot < texture2DInfos.size(); slot++)
+		{
+			context->PSSetShaderResources(slot, 0, nullptr);
+			context->PSSetSamplers(slot, 0, nullptr);
+			context->VSSetShaderResources(slot, 0, nullptr);
+			context->VSSetSamplers(slot, 0, nullptr);
+		}
+
+		if (constantBuffer)
+		{
+			context->PSSetConstantBuffers(0, 0, nullptr);
+			context->VSSetConstantBuffers(0, 0, nullptr);
+		}
 	}
 
 	void D3D11Shader::setUniform(const std::string & name, const UniformValue & value)
@@ -257,14 +280,10 @@ namespace ks
 				ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
 				assert(d3dDeviceContext);
 				assert(constantBuffer);
-				D3D11_MAPPED_SUBRESOURCE constant_resource;
-				HRESULT status = d3dDeviceContext->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &constant_resource);
-				assert(SUCCEEDED(status));
 				const size_t dataTypeSize = getSize(value.type);
 				const PackingRules packingRules = getPackingRules();
 				const size_t offset = getOffset(uniformInfos, packingRules, info);
-				memcpy(reinterpret_cast<char*>(constant_resource.pData) + offset, value.getData(), dataTypeSize);
-				d3dDeviceContext->Unmap(constantBuffer, 0);
+				memcpy(cpuConstantBuffer.data() + offset, value.getData(), dataTypeSize);
 				isFind = true;
 				break;
 			}

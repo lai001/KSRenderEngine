@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <functional>
 #include <unordered_map>
+#include "D3D11/D3D11FrameBuffer.hpp"
 
 namespace ks
 {
@@ -62,14 +63,15 @@ namespace ks
 			assert(SUCCEEDED(status));
 
 			D3D11_SAMPLER_DESC samplerDesc;
-			samplerDesc.MaxAnisotropy = 4;
+			samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+			samplerDesc.MaxAnisotropy = 1;
 			samplerDesc.MipLODBias = 1.0;
-			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-			samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-			samplerDesc.MinLOD = 0.0;
-			samplerDesc.MaxLOD = 1.0;
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			samplerDesc.MinLOD = -FLT_MAX;
+			samplerDesc.MaxLOD = FLT_MAX;
 			status = d3dDevice->CreateSamplerState(&samplerDesc, &d3d11Texture2D->samplerState);
 			assert(SUCCEEDED(status));
 		}
@@ -329,5 +331,10 @@ namespace ks
 	unsigned int ks::D3D11Texture2D::getHeight() const
 	{
 		return texture2DDescription.height;
+	}
+
+	Texture2DDescription ks::D3D11Texture2D::getTexture2DDescription() const
+	{
+		return texture2DDescription;
 	}
 }

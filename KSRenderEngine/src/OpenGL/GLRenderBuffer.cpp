@@ -21,12 +21,15 @@ namespace ks
 		vertexArray->unbind();
 	}
 
-	void GLRenderBuffer::commit(const IFrameBuffer& frameBuffer)
+	void GLRenderBuffer::commit(const IFrameBuffer* frameBuffer)
 	{
 		assert(shader);
 		assert(vertextBuffer);
 		assert(indexBuffer);
-		frameBuffer.bind();
+		if (frameBuffer)
+		{
+			frameBuffer->bind();
+		}
 		shader->bind();
 		vertexArray->bind();
 		viewport();
@@ -49,7 +52,10 @@ namespace ks
 
 		shader->unbind();
 		vertexArray->unbind();
-		frameBuffer.unbind();
+		if (frameBuffer)
+		{
+			frameBuffer->unbind();
+		}
 	}
 
 	void GLRenderBuffer::setClearBufferFlags(const ks::ClearBufferFlags & flags)
@@ -109,4 +115,5 @@ namespace ks
 	void GLRenderBuffer::setPrimitiveTopologyType(const PrimitiveTopologyType & primitiveTopologyType)
 	{
 	}
+
 }

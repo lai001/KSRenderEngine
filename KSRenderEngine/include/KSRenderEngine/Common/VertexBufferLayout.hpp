@@ -1,5 +1,5 @@
-#ifndef KSRENDERENGIVertexBufferLayout
-#define KSRENDERENGIVertexBufferLayout
+#ifndef KSRenderEngine_Common_VertexBufferLayout_hpp
+#define KSRenderEngine_Common_VertexBufferLayout_hpp
 
 #include <vector>
 #include "VertexBufferElement.hpp"
@@ -45,4 +45,4 @@ namespace ks
 	};
 }
 
-#endif // !KSRENDERENGIVertexBufferLayout
+#endif // !KSRenderEngine_Common_VertexBufferLayout_hpp

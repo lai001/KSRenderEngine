@@ -17,7 +17,7 @@
 
 namespace ks
 {
-	class D3D11RenderBuffer : public boost::noncopyable, public IRenderBuffer
+	class D3D11RenderBuffer : public noncopyable, public IRenderBuffer
 	{
 	public:
 		D3D11RenderBuffer(void const * vertexBuffer,
@@ -37,7 +37,7 @@ namespace ks
 		void setDepthStencilState(const IDepthStencilState & depthStencilState) override;
 		void setRasterizerState(const IRasterizerState & rasterizerState) override;
 		void setPrimitiveTopologyType(const PrimitiveTopologyType &primitiveTopologyType);
-		void commit(const IFrameBuffer & frameBuffer) override;
+		void commit(const IFrameBuffer * frameBuffer) override;
 
 	private:
 		const IBlendState* blendState = nullptr;

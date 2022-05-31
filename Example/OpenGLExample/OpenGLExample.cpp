@@ -147,7 +147,7 @@ void frameTick()
 	renderBuffer->setClearColor(glm::vec4(0.0, 0.0, 0.0, 0.0));
 	renderBuffer->setViewport(0, 0, 1000, 1000);
 	renderBuffer->setClearBufferFlags(ks::ClearBufferFlags::color);
-	renderBuffer->commit(*frameBuffer);
+	renderBuffer->commit(frameBuffer);
 
 	if (dataSource.isSaveImage && dataSource.isSaveImage())
 	{

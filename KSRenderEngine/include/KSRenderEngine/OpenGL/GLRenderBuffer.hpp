@@ -33,7 +33,7 @@ namespace ks
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type);
 
-		void commit(const IFrameBuffer& frameBuffer) override;
+		void commit(const IFrameBuffer* frameBuffer) override;
 		void setClearBufferFlags(const ks::ClearBufferFlags& flags) override;
 		void setClearColor(const glm::vec4& clearColor) override;
 		void setViewport(const int x, const int y, const int width, const int height) override;
