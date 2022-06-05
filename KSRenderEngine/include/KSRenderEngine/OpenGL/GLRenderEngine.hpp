@@ -21,24 +21,24 @@ namespace ks
 		GLRenderEngineCreateInfo createInfo;
 
 	public:
-		explicit GLRenderEngine(GLRenderEngineCreateInfo createInfo);
+		explicit GLRenderEngine(const GLRenderEngineCreateInfo& createInfo);
 
-		IFrameBuffer * createFrameBuffer(const int width, const int height) override;
+		virtual IFrameBuffer * createFrameBuffer(const int width, const int height) override;
 
-		void readTexture(const IFrameBuffer * frameBuffer, ks::PixelBuffer & pixelBuffer) override;
+		virtual void readTexture(const IFrameBuffer * frameBuffer, ks::PixelBuffer & pixelBuffer) override;
 
-		void enableDebug(const bool flag) override;
+		virtual void enableDebug(const bool flag) override;
 
-		IShader * createShader(const std::string& vertexShaderSource,
+		virtual IShader * createShader(const std::string& vertexShaderSource,
 			const std::string& fragmentShaderSource,
 			const std::vector<UniformBufferInfo>& uniformBuffers,
 			const std::vector<ShaderTexture2DInfo> texture2DInfos,
 			const ks::VertexBufferLayout& layout) override;
 
-		IShader * createShader(const std::string & VertexShaderSource,
+		virtual IShader * createShader(const std::string & VertexShaderSource,
 			const std::string & FragmentShaderSource) override;
 
-		IRenderBuffer * createRenderBuffer(const void * vertexBuffer,
+		virtual IRenderBuffer * createRenderBuffer(const void * vertexBuffer,
 			const unsigned int vertexCount,
 			const unsigned int vertexStride,
 			const IShader & shader,
@@ -46,16 +46,22 @@ namespace ks
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type) override;
 
-		IBlendState * createBlendState(const BlendStateDescription::Addition& addition,
+		virtual IBlendState * createBlendState(const BlendStateDescription::Addition& addition,
 			const BlendStateDescription& blendStateDescription) override;
-		IRasterizerState * createRasterizerState(const ks::RasterizerStateDescription &rasterizerStateDescription) override;
-		IDepthStencilState * createDepthStencilState(const ks::DepthStencilStateDescription &depthStencilStateDescription) override;
-		ITexture2D * createTexture2D(const unsigned int width, 
+		virtual IRasterizerState * createRasterizerState(const ks::RasterizerStateDescription &rasterizerStateDescription) override;
+		virtual IDepthStencilState * createDepthStencilState(const ks::DepthStencilStateDescription &depthStencilStateDescription) override;
+		virtual ITexture2D * createTexture2D(const unsigned int width,
 			const unsigned int height,
 			const TextureFormat textureFormat, 
 			const unsigned char * data) override;
 
-		void erase(IDeletable * deletable) override;
+		virtual void erase(IDeletable * deletable) override;
+
+		virtual void addRenderCommand(std::function<void()> command) override;
+
+		virtual std::function<void()> renderCommand() override;
+
+		virtual void attachToCurrentThread() override;
 	};
 }
 

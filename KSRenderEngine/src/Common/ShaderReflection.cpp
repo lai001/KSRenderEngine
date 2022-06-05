@@ -121,60 +121,59 @@ namespace ks
 		}
 	}
 
-	std::vector<UniformInfo> ShaderReflection::getVertexUniformInfos(const std::string & shaderCode, const std::string & entryPoint)
+	ShaderReflection::ShaderReflection(const std::string& shaderCode,
+		const ks::IShader::Type shaderType,
+		const std::string& entryPoint)
+		:shaderCode(shaderCode), shaderType(shaderType), entryPoint(entryPoint)
 	{
-		assert(false); // TODO:
-		ResultDesc desc = ShaderConductorHelper::VSHLSL2SPIRV(shaderCode, entryPoint);
-		desc = ShaderConductorHelper::disassembleSPIRV(reinterpret_cast<const unsigned char *>(desc.target.Data()), desc.target.Size());
-		const std::string info = std::string(reinterpret_cast<const char *>(desc.target.Data()), desc.target.Size());
+		ResultDesc vertexResult;
+		ResultDesc fragmentResult;
 
-		return std::vector<UniformInfo>();
-	}
-
-	std::vector<UniformInfo> ShaderReflection::getFragUniformInfos(const std::string & shaderCode, const std::string & entryPoint)
-	{
-		ResultDesc result = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
-		if (result.hasError)
+		std::function<void(const ResultDesc&)> check = [](const ResultDesc& result)
 		{
-			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
-			assert(result.hasError == false);
-		}
-		assert(result.reflection.Valid());
-
-		std::vector<UniformInfo> uniformInfos;
-
-		for (unsigned int i = 0; i < result.reflection.NumConstantBuffers(); i++)
-		{
-			const ConstantBuffer& constantBuffer = *result.reflection.ConstantBufferByIndex(i);
-
-			for (unsigned int numVariablesIdx = 0; numVariablesIdx < constantBuffer.NumVariables(); numVariablesIdx++)
+			if (result.hasError)
 			{
-				const VariableDesc& variableDesc = *constantBuffer.VariableByIndex(numVariablesIdx);
-				const UniformInfo uniformInfo = getUniformInfo(constantBuffer, variableDesc);
-				uniformInfos.push_back(uniformInfo);
+				std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
+				assert(result.hasError == false);
 			}
-		}
+			assert(result.reflection.Valid());
+		};
 
-		return uniformInfos;
-	}
-
-	std::vector<UniformBufferInfo> ShaderReflection::getVertexUniformBuffers(const std::string & shaderCode, const std::string & entryPoint)
-	{
-		assert(false); // TODO:
-		return std::vector<UniformBufferInfo>();
-	}
-
-	std::vector<UniformBufferInfo> ShaderReflection::getFragUniformBuffers(const std::string & shaderCode, const std::string & entryPoint)
-	{
-		ResultDesc result = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
-		if (result.hasError)
+		if (shaderType == IShader::Type::vertex)
 		{
-			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
-			assert(result.hasError == false);
+			vertexResult = ShaderConductorHelper::VSHLSL2GLSL(shaderCode, entryPoint);
+			check(vertexResult);
+			bufferLayout = getBufferLayout(vertexResult);
 		}
-		assert(result.reflection.Valid());
+		else if (shaderType == IShader::Type::fragment)
+		{
+			fragmentResult = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
+			check(fragmentResult);
 
-		std::string glslCode = std::string(reinterpret_cast<const char*>(result.target.Data()), result.target.Size());
+			uniformBuffers = getUniformBuffers(fragmentResult);
+			texture2DNmaes = getTexture2DNmaes(fragmentResult);
+		}
+	}
+
+	std::vector<UniformBufferInfo> ShaderReflection::getUniformBuffers() const noexcept
+	{
+		return uniformBuffers;
+	}
+
+	std::vector<ShaderTexture2DInfo> ShaderReflection::getTexture2DNmaes() const noexcept
+	{
+		return texture2DNmaes;
+	}
+
+	VertexBufferLayout ShaderReflection::getBufferLayout() const noexcept
+	{
+		assert(shaderType == IShader::Type::vertex);
+		return bufferLayout;
+	}
+
+	std::vector<UniformBufferInfo> ShaderReflection::getUniformBuffers(const ResultDesc& resultDesc)
+	{
+		ResultDesc result = resultDesc;
 
 		std::vector<UniformBufferInfo> uniformBuffers;
 
@@ -195,24 +194,9 @@ namespace ks
 		return uniformBuffers;
 	}
 
-	std::vector<ShaderTexture2DInfo> ShaderReflection::getVertexTexture2DNmaes(const std::string & shaderCode, const std::string & entryPoint)
+	std::vector<ShaderTexture2DInfo> ShaderReflection::getTexture2DNmaes(const ResultDesc& resultDesc)
 	{
-		assert(false); // TODO:
-
-		std::vector<ShaderTexture2DInfo> infos;
-		return infos;
-	}
-
-	std::vector<ShaderTexture2DInfo> ShaderReflection::getFragTexture2DNmaes(const std::string & shaderCode, const std::string & entryPoint)
-	{
-		ResultDesc result = ShaderConductorHelper::PSHLSL2GLSL(shaderCode, entryPoint);
-		if (result.hasError)
-		{
-			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
-			assert(result.hasError == false);
-		}
-		assert(result.reflection.Valid());
-		//std::string code = std::string(reinterpret_cast<const char*>(result.target.Data()), result.target.Size());
+		ResultDesc result = resultDesc;
 		std::vector<ShaderTexture2DInfo> infos;
 
 		std::vector<const ResourceDesc*> samplers;
@@ -254,18 +238,11 @@ namespace ks
 		return infos;
 	}
 
-	VertexBufferLayout ShaderReflection::getBufferLayout(const std::string & shaderCode, const std::string & entryPoint)
+	VertexBufferLayout ShaderReflection::getBufferLayout(const ResultDesc& resultDesc)
 	{
 		VertexBufferLayout layout = VertexBufferLayout();
-		ResultDesc result = ShaderConductorHelper::VSHLSL2GLSL(shaderCode, entryPoint);
+		ResultDesc result = resultDesc;
 		
-		if (result.hasError)
-		{
-			std::string errorInfo = std::string(reinterpret_cast<const char*>(result.errorWarningMsg.Data()));
-			assert(result.hasError == false);
-		}
-		assert(result.reflection.Valid());
-
 		for (unsigned int i = 0; i < result.reflection.NumInputParameters(); i++)
 		{
 			const SignatureParameterDesc& inputParam = *result.reflection.InputParameter(i);

@@ -58,6 +58,7 @@ target("KSRenderEngine")
     add_headerfiles("include/KSRenderEngine/OpenGL/*.hpp")
     add_headerfiles("include/KSRenderEngine/Interface/*.hpp")
     add_headerfiles("include/KSRenderEngine/Common/*.hpp")
+    add_headerfiles("include/KSRenderEngine/Platform/*.hpp")
 
     add_linkdirs(path.join(ShaderConductorBaseDir, "Build/Lib/Release"), { public = true })
 

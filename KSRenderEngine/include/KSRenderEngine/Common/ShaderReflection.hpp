@@ -6,6 +6,7 @@
 #include "ShaderConductorHelper.hpp"
 #include "Common/Uniform.hpp"
 #include "Common/VertexBufferLayout.hpp"
+#include "Interface/Shader.hpp"
 
 namespace ks
 {
@@ -26,16 +27,29 @@ namespace ks
 		static VertexBufferElement::Type getElementType(const DataType& dataType);
 		static UniformInfo getUniformInfo(const ConstantBuffer& constantBuffer, const VariableDesc& variableDesc);
 
+		std::string shaderCode;
+		ks::IShader::Type shaderType;
+		std::string entryPoint;
+
+		std::vector<UniformBufferInfo> uniformBuffers;
+		std::vector<ShaderTexture2DInfo> texture2DNmaes;
+		VertexBufferLayout bufferLayout;
+
+		std::vector<UniformBufferInfo> getUniformBuffers(const ResultDesc& resultDesc);
+		std::vector<ShaderTexture2DInfo> getTexture2DNmaes(const ResultDesc& resultDesc);
+		VertexBufferLayout getBufferLayout(const ResultDesc& resultDesc);
+
+		//ResultDesc vertexResult;
+		//ResultDesc fragmentResult;
+
 	public:
-		static std::vector<UniformInfo> getVertexUniformInfos(const std::string& shaderCode, const std::string& entryPoint = "main");
-		static std::vector<UniformInfo> getFragUniformInfos(const std::string& shaderCode, const std::string& entryPoint = "main");
+		explicit ShaderReflection(const std::string& shaderCode,
+			const ks::IShader::Type shaderType, 
+			const std::string& entryPoint = "main");
 
-		static std::vector<UniformBufferInfo> getVertexUniformBuffers(const std::string& shaderCode, const std::string& entryPoint = "main");
-		static std::vector<UniformBufferInfo> getFragUniformBuffers(const std::string& shaderCode, const std::string& entryPoint = "main");
-
-		static std::vector<ShaderTexture2DInfo> getVertexTexture2DNmaes(const std::string& shaderCode, const std::string& entryPoint = "main");
-		static std::vector<ShaderTexture2DInfo> getFragTexture2DNmaes(const std::string& shaderCode, const std::string& entryPoint = "main");
-		static VertexBufferLayout getBufferLayout(const std::string& shaderCode, const std::string& entryPoint = "main");
+		std::vector<UniformBufferInfo> getUniformBuffers() const noexcept;
+		std::vector<ShaderTexture2DInfo> getTexture2DNmaes() const noexcept;
+		VertexBufferLayout getBufferLayout() const noexcept;
 
 		static const std::string Texture2DPrefix;
 		static const std::string ConstantBlockPrefix;

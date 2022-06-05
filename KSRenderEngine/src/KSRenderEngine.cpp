@@ -2,13 +2,13 @@
 
 namespace ks
 {
-	IRenderEngine * RenderEngine::create(GLRenderEngineCreateInfo createInfo)
+	IRenderEngine * RenderEngine::create(const GLRenderEngineCreateInfo& createInfo)
 	{
 		GLRenderEngine* engine = new GLRenderEngine(createInfo);
 		return engine;
 	}
 
-	IRenderEngine * RenderEngine::create(D3D11RenderEngineCreateInfo createInfo)
+	IRenderEngine * RenderEngine::create(const D3D11RenderEngineCreateInfo& createInfo)
 	{
 		D3D11RenderEngine* engine = new D3D11RenderEngine(createInfo);
 		return engine;

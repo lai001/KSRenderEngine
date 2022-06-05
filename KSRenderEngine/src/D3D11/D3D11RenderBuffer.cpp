@@ -33,13 +33,14 @@ namespace ks
 		}
 		assert(vertextBuffer);
 		assert(indexBuffer);
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		assert(engineInfo.device);
 		assert(shader);
 		assert(blendState);
 		assert(depthStencilState);
 		assert(rasterizerState);
-		ID3D11DeviceContext& d3dDeviceContext = *engineInfo.context;
+		ID3D11DeviceContext& d3dDeviceContext = *engineInfo.getContext();
+
 		if (d3d11FrameBuffer)
 		{
 			d3d11FrameBuffer->bind();
@@ -58,6 +59,21 @@ namespace ks
 		d3dDeviceContext.RSSetScissorRects(1, &scissorRect);
 		d3dDeviceContext.IASetPrimitiveTopology(getPrimitiveTopology(primitiveTopologyType));
 		d3dDeviceContext.DrawIndexed(indexBuffer->getCount(), 0, 0);
+
+		const D3D11_DEVICE_CONTEXT_TYPE contextType = d3dDeviceContext.GetType();
+		if (contextType == D3D11_DEVICE_CONTEXT_DEFERRED)
+		{
+			ID3D11CommandList* d3dCommandList = nullptr;
+			HRESULT status = d3dDeviceContext.FinishCommandList(FALSE, &d3dCommandList);
+			assert(SUCCEEDED(status));
+			D3D11RenderEngine* renderEngine = dynamic_cast<D3D11RenderEngine*>(engineInfo.renderEngine);
+			assert(renderEngine);
+			renderEngine->addRenderCommand([this, d3dCommandList]()
+			{
+				engineInfo.immediateContext->ExecuteCommandList(d3dCommandList, TRUE);
+				d3dCommandList->Release();
+			});
+		}
 		if (d3d11FrameBuffer)
 		{
 			d3d11FrameBuffer->unbind();

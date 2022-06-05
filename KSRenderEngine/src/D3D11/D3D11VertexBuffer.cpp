@@ -13,10 +13,10 @@ namespace ks
 		:engineInfo(engineInfo), vertexCount(vertexCount), vertexStride(vertexStride)
 	{
 		assert(buffer);
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		assert(engineInfo.device);
 		ID3D11Device *d3dDevice = engineInfo.device;
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 
 		HRESULT status = S_OK;
 		D3D11_BUFFER_DESC desc;
@@ -45,7 +45,7 @@ namespace ks
 	{
 		assert(engineInfo.device);
 		assert(verteBuffer);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		const unsigned int offset = 0;
 		d3dDeviceContext->IASetVertexBuffers(D3D11VertexBuffer::DefaultStartSlot, 1, &verteBuffer, &vertexStride, &offset);
 	}
@@ -53,7 +53,7 @@ namespace ks
 	void D3D11VertexBuffer::unbind() const
 	{
 		assert(engineInfo.device);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		const unsigned int offset = 0;
 		d3dDeviceContext->IASetVertexBuffers(D3D11VertexBuffer::DefaultStartSlot, 0, nullptr, nullptr, &offset);
 	}

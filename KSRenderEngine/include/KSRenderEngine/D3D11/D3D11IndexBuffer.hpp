@@ -6,7 +6,7 @@
 #endif // _WIN32
 
 #include <Foundation/Foundation.hpp>
-#include <d3d11.h>
+#include "Platform/windows.hpp"
 #include "Interface/IndexBuffer.hpp"
 #include "D3D11/D3D11RenderEngine.hpp"
 

@@ -6,7 +6,6 @@ namespace ks
 		const D3D11RenderEngineInfo & engineInfo)
 		:engineInfo(engineInfo), depthStencilStateDescription(depthStencilStateDescription)
 	{
-		assert(engineInfo.context);
 		assert(engineInfo.device);
 		ID3D11Device *d3dDevice = engineInfo.device;
 		// TODO: DepthStencilStateDescription -> D3D11_DEPTH_STENCIL_DESC
@@ -33,8 +32,8 @@ namespace ks
 	void D3D11DepthStencilState::bind() const
 	{
 		assert(depthStencilState);
-		assert(engineInfo.context);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		assert(engineInfo.getContext());
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		d3dDeviceContext->OMSetDepthStencilState(depthStencilState, 0);
 	}
 

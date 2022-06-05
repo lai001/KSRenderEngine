@@ -5,7 +5,7 @@
 #error
 #endif // !_WIN32
 
-#include <d3d11.h>
+#include "Platform/windows.hpp"
 #include <Foundation/Foundation.hpp>
 #include <Interface/RasterizerState.hpp>
 #include "Common/RasterizerStateDescription.hpp"

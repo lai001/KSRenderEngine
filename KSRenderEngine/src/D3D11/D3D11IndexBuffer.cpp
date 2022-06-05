@@ -10,10 +10,10 @@ namespace ks
 		: count(count), indexDataType(indexDataType), engineInfo(engineInfo)
 	{
 		assert(data);
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		assert(engineInfo.device);
 		ID3D11Device *d3dDevice = engineInfo.device;
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 
 		HRESULT status = S_OK;
 		D3D11_BUFFER_DESC desc;
@@ -44,19 +44,19 @@ namespace ks
 
 	void D3D11IndexBuffer::bind() const
 	{
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		std::unordered_map<IIndexBuffer::IndexDataType, DXGI_FORMAT> indexDataTypeDic;
 		indexDataTypeDic[IIndexBuffer::IndexDataType::uint16] = DXGI_FORMAT_R16_UINT;
 		indexDataTypeDic[IIndexBuffer::IndexDataType::uint32] = DXGI_FORMAT_R32_UINT;
 		assert(indexDataTypeDic.end() != indexDataTypeDic.find(indexDataType));
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		d3dDeviceContext->IASetIndexBuffer(indexBuffer, indexDataTypeDic.at(indexDataType), 0);
 	}
 
 	void D3D11IndexBuffer::unbind() const
 	{
-		assert(engineInfo.context);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		assert(engineInfo.getContext());
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		d3dDeviceContext->IASetIndexBuffer(nullptr, DXGI_FORMAT_R16_UINT, 0);
 	}
 

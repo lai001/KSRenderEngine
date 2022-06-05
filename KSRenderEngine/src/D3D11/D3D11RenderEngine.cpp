@@ -6,16 +6,30 @@
 #include "D3D11/D3D11DepthStencilState.hpp"
 #include "D3D11/D3D11RasterizerState.hpp"
 
-
 namespace ks
 {
-	D3D11RenderEngine::D3D11RenderEngine(D3D11RenderEngineCreateInfo createInfo)
+	D3D11RenderEngine::D3D11RenderEngine(const D3D11RenderEngineCreateInfo& createInfo)
 		:createInfo(createInfo)
 	{
-		engineInfo.context = createInfo.context;
-		engineInfo.device = createInfo.device;
-		assert(engineInfo.context);
-		assert(engineInfo.device);
+		D3D11RenderEngineCreateInfo::NativeData nativeData;
+
+		if (createInfo.data)
+		{
+			nativeData = *createInfo.data;
+		}
+		else
+		{
+			D3D11Window::Configuration cfg;
+			window = std::make_unique<D3D11Window>(cfg);
+			nativeData.context = window->getDeviceContext();
+			nativeData.device = window->getDevice();
+		}
+		assert(nativeData.device);
+		assert(nativeData.context);
+		assert(nativeData.context->GetType() == D3D11_DEVICE_CONTEXT_IMMEDIATE);
+		engineInfo.immediateContext = nativeData.context;
+		engineInfo.device = nativeData.device;
+		engineInfo.renderEngine = this;
 	}
 
 	IFrameBuffer * D3D11RenderEngine::createFrameBuffer(const int width, const int height)
@@ -84,6 +98,37 @@ namespace ks
 		delete deletable;
 	}
 
+	void D3D11RenderEngine::addRenderCommand(std::function<void()> command)
+	{
+		std::lock_guard<std::mutex> lock(commandMutex);
+		commands.push_back(command);
+	}
+
+	std::function<void()> D3D11RenderEngine::renderCommand()
+	{
+		std::lock_guard<std::mutex> lock(commandMutex);
+		if (commands.empty() == false)
+		{
+			std::function<void()> command = commands.at(0);
+			commands.erase(commands.begin());
+			return command;
+		}
+		return std::function<void()>();
+	}
+
+	void D3D11RenderEngine::attachToCurrentThread()
+	{
+		if (createInfo.isDeferredContextEnable)
+		{
+			if (engineInfo.deferredContext)
+			{
+				assert(false);
+			}
+			HRESULT status = createInfo.data->device->CreateDeferredContext(0, &engineInfo.deferredContext);
+			assert(SUCCEEDED(status));
+		}
+	}
+
 	ks::IBlendState * D3D11RenderEngine::createBlendState(const BlendStateDescription::Addition& addition,
 		const BlendStateDescription& blendStateDescription)
 	{
@@ -105,5 +150,22 @@ namespace ks
 
 	void D3D11RenderEngine::enableDebug(const bool flag)
 	{
+	}
+
+}
+
+namespace ks
+{
+	ID3D11DeviceContext * D3D11RenderEngineInfo::getContext() const noexcept
+	{
+		if (deferredContext)
+		{
+			return deferredContext;
+		}
+		else
+		{
+			assert(immediateContext);
+			return immediateContext;
+		}
 	}
 }

@@ -28,7 +28,7 @@ namespace ks
 	D3D11Texture2D * D3D11Texture2D::create(const Texture2DDescription& texture2DDescription,
 		const D3D11RenderEngineInfo& engineInfo)
 	{
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		assert(engineInfo.device);
 		ID3D11Device *d3dDevice = engineInfo.device;
 		ID3D11Texture2D* texture2D = nullptr;
@@ -103,10 +103,10 @@ namespace ks
 
 		if (d3d11Texture2D)
 		{
-			assert(engineInfo.context);
+			assert(engineInfo.getContext());
 			assert(engineInfo.device);
 			ID3D11Device *d3dDevice = engineInfo.device;
-			ID3D11DeviceContext *context = engineInfo.context;
+			ID3D11DeviceContext *context = engineInfo.getContext();
 			HRESULT status = S_OK;
 			ID3D11Texture2D* texture2D = d3d11Texture2D->getNativeTexture2D();
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
@@ -172,11 +172,11 @@ namespace ks
 
 	void D3D11Texture2D::bind(unsigned int slot) const
 	{
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		assert(engineInfo.device);
 		assert(texture2D);
 		ID3D11Device *d3dDevice = engineInfo.device;
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 
 		//D3D11_TEXTURE2D_DESC texture2DDesc;
 		//texture2D->GetDesc(&texture2DDesc);

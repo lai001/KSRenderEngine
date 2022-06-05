@@ -24,7 +24,6 @@ namespace ks
 
 	void D3D11FrameBuffer::bind() const
 	{
-		assert(engineInfo.context);
 		assert(engineInfo.device);
 		renderTargetView->bind();
 	}
@@ -57,11 +56,11 @@ namespace ks
 
 		assert(pixelBuffer.getWidth() == colorTexture2D->getWidth());
 		assert(pixelBuffer.getHeight() == colorTexture2D->getHeight());
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		assert(engineInfo.device);
 
 		ID3D11Device *device = engineInfo.device;
-		ID3D11DeviceContext *context = engineInfo.context;
+		ID3D11DeviceContext *context = engineInfo.getContext();
 		std::unique_ptr<D3D11Texture2D> readTexture2D = std::unique_ptr<D3D11Texture2D>(D3D11Texture2D::createReadBackTexture2D(colorTexture2D->getWidth(),
 			colorTexture2D->getHeight(),
 			TextureFormat::R8G8B8A8_UNORM,
@@ -71,7 +70,8 @@ namespace ks
 		unsigned int subresource= D3D11CalcSubresource(0, 0, 0);
 		D3D11_MAP_FLAG mapFlag = static_cast<D3D11_MAP_FLAG>(0);
 		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-		context->Map(readTexture2D->getNativeTexture2D(), subresource, D3D11_MAP_READ, mapFlag, &mappedSubresource);
+		HRESULT status = context->Map(readTexture2D->getNativeTexture2D(), subresource, D3D11_MAP_READ, mapFlag, &mappedSubresource);
+		assert(SUCCEEDED(status));
 		defer{ context->Unmap(readTexture2D->getNativeTexture2D(), subresource); };
 		unsigned int bytes = PixelBuffer::getBytesCount(pixelBuffer.getWidth(), pixelBuffer.getHeight(), pixelBuffer.getType());
 

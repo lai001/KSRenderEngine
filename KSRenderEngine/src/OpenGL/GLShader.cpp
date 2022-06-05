@@ -135,13 +135,15 @@ namespace ks
 	{
 		ShaderConductor::Compiler::ResultDesc desc = ShaderConductorHelper::VSHLSL2GLSL(vertexShaderSource);
 		assert(desc.hasError == false);
-		std::string glslVertexShaderSource = std::string(reinterpret_cast<const char*>(desc.target.Data()), desc.target.Size());
+		const std::string glslVertexShaderSource = std::string(reinterpret_cast<const char*>(desc.target.Data()), desc.target.Size());
 		desc = ShaderConductorHelper::PSHLSL2GLSL(fragmentShaderSource);
 		assert(desc.hasError == false);
-		std::string glslFragmentShaderSource = std::string(reinterpret_cast<const char*>(desc.target.Data()), desc.target.Size());;
-		std::vector<UniformBufferInfo> uniformBuffers = ShaderReflection::getFragUniformBuffers(fragmentShaderSource);
-		std::vector<ShaderTexture2DInfo> texture2DInfos = ShaderReflection::getFragTexture2DNmaes(fragmentShaderSource);
-		const VertexBufferLayout vertexBufferLayout = ShaderReflection::getBufferLayout(vertexShaderSource);
+		const std::string glslFragmentShaderSource = std::string(reinterpret_cast<const char*>(desc.target.Data()), desc.target.Size());
+		const ShaderReflection vertexShaderReflection = ShaderReflection(vertexShaderSource, IShader::Type::vertex);
+		const ShaderReflection fragmentShaderReflection = ShaderReflection(fragmentShaderSource, IShader::Type::fragment);
+		const std::vector<UniformBufferInfo> uniformBuffers = fragmentShaderReflection.getUniformBuffers();
+		const std::vector<ShaderTexture2DInfo> texture2DInfos = fragmentShaderReflection.getTexture2DNmaes();
+		const VertexBufferLayout vertexBufferLayout = vertexShaderReflection.getBufferLayout();
 		return GLShader::create(glslVertexShaderSource, glslFragmentShaderSource, vertexBufferLayout, uniformBuffers, texture2DInfos);
 	}
 

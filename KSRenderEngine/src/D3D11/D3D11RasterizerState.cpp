@@ -8,7 +8,6 @@ namespace ks
 		const D3D11RenderEngineInfo& engineInfo)
 		:engineInfo(engineInfo), rasterizerStateDescription(rasterizerStateDescription)
 	{
-		assert(engineInfo.context);
 		assert(engineInfo.device);
 		ID3D11Device *d3dDevice = engineInfo.device;
 
@@ -20,7 +19,6 @@ namespace ks
 		cullModeDic[RasterizerStateCullMode::back] = D3D11_CULL_BACK;
 		cullModeDic[RasterizerStateCullMode::front] = D3D11_CULL_FRONT;
 		cullModeDic[RasterizerStateCullMode::none] = D3D11_CULL_NONE;
-		
 
 		HRESULT status = S_OK;
 		D3D11_RASTERIZER_DESC desc;
@@ -48,8 +46,8 @@ namespace ks
 	void D3D11RasterizerState::bind() const
 	{
 		assert(rasterizerState);
-		assert(engineInfo.device);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		assert(engineInfo.getContext());
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		d3dDeviceContext->RSSetState(rasterizerState);
 	}
 

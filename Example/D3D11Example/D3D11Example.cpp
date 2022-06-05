@@ -247,9 +247,10 @@ void frameTick()
 	static const std::unique_ptr <const ks::PixelBuffer> imageData = ImageIO::readImageFromFilePath2(ks::Application::getResourcePath("maple.jpg"));
 
 	ks::D3D11RenderEngineCreateInfo createInfo;
-	createInfo.device = g_pd3dDevice;
-	createInfo.context = g_pd3dDeviceContext;
-
+	ks::D3D11RenderEngineCreateInfo::NativeData data;
+	data.device = g_pd3dDevice;
+	data.context = g_pd3dDeviceContext;
+	createInfo.data = &data;
 	static ks::IRenderEngine* enginePtr = ks::RenderEngine::create(createInfo);
 	ks::IRenderEngine& engine = *enginePtr;
 
@@ -308,6 +309,8 @@ void frameTick()
 	renderBuffer->setRasterizerState(*rasterizerState);
 	renderBuffer->setPrimitiveTopologyType(ks::PrimitiveTopologyType::trianglelist);
 	renderBuffer->commit(frameBuffer);
+	g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
+	renderBuffer->commit(nullptr);
 
 	if (dataSource.isSaveImage && dataSource.isSaveImage())
 	{

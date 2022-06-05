@@ -5,7 +5,7 @@
 #error
 #endif // !_WIN32
 
-#include <d3d11.h>
+#include "Platform/windows.hpp"
 #include "Interface/Shader.hpp"
 #include "D3D11/D3D11RenderEngine.hpp"
 #include "Common/PackingRules.hpp"

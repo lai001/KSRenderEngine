@@ -12,8 +12,8 @@ namespace ks
 	class RenderEngine
 	{
 	public:
-		static IRenderEngine* create(GLRenderEngineCreateInfo createInfo);
-		static IRenderEngine* create(D3D11RenderEngineCreateInfo createInfo);
+		static IRenderEngine* create(const GLRenderEngineCreateInfo& createInfo);
+		static IRenderEngine* create(const D3D11RenderEngineCreateInfo& createInfo);
 	};
 
 }

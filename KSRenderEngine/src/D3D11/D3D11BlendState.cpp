@@ -9,10 +9,8 @@ namespace ks
 		const D3D11RenderEngineInfo& engineInfo)
 		:engineInfo(engineInfo), blendStateDescription(description)
 	{
-		assert(engineInfo.context);
 		assert(engineInfo.device);
 		ID3D11Device *d3dDevice = engineInfo.device;
-
 		HRESULT status = S_OK;
 		D3D11_BLEND_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
@@ -105,8 +103,8 @@ namespace ks
 	void D3D11BlendState::bind() const
 	{
 		assert(blendState);
-		assert(engineInfo.context);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		assert(engineInfo.getContext());
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		d3dDeviceContext->OMSetBlendState(blendState, blendStateDescription.blendFactor, blendStateDescription.sampleMask);
 	}
 

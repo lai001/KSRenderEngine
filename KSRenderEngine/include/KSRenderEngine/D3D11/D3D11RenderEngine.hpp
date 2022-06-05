@@ -5,36 +5,32 @@
 #ifndef _WIN32
 #error
 #endif // !_WIN32
-
+#include <mutex>
 #include "Interface/RenderEngine.hpp"
-#include <d3d11.h>
+#include "Platform/windows.hpp"
+#include "D3D11RenderEngineCreateInfo.hpp"
+#include "D3D11RenderEngineInfo.hpp"
+#include "D3D11Init.hpp"
 
 namespace ks
 {
-	struct D3D11RenderEngineCreateInfo
-	{
-		ID3D11Device* device = nullptr;
-		ID3D11DeviceContext* context = nullptr;
-	};
-
-	struct D3D11RenderEngineInfo
-	{
-		ID3D11Device* device = nullptr;
-		ID3D11DeviceContext* context = nullptr;
-	};
-
-	class D3D11RenderEngine : public boost::noncopyable, public IRenderEngine
+	class D3D11RenderEngine : public noncopyable, public IRenderEngine
 	{
 	private:
 		D3D11RenderEngineCreateInfo createInfo;
 		D3D11RenderEngineInfo engineInfo;
 
+		std::unique_ptr<D3D11Window> window;
+
+		std::vector<std::function<void()>> commands;
+		std::mutex commandMutex;
+
 	public:
-		explicit D3D11RenderEngine(D3D11RenderEngineCreateInfo createInfo);
+		explicit D3D11RenderEngine(const D3D11RenderEngineCreateInfo& createInfo);
 
-		IFrameBuffer * createFrameBuffer(const int width, const int height) override;
+		virtual IFrameBuffer * createFrameBuffer(const int width, const int height) override;
 
-		IRenderBuffer * createRenderBuffer(const void * vertexBuffer,
+		virtual IRenderBuffer * createRenderBuffer(const void * vertexBuffer,
 			const unsigned int vertexCount,
 			const unsigned int vertexStride,
 			const IShader & shader,
@@ -42,30 +38,36 @@ namespace ks
 			const unsigned int indexCount,
 			const IIndexBuffer::IndexDataType type) override;
 
-		IBlendState * createBlendState(const BlendStateDescription::Addition& addition,
+		virtual IBlendState * createBlendState(const BlendStateDescription::Addition& addition,
 			const BlendStateDescription& blendStateDescription) override;
-		IRasterizerState * createRasterizerState(const ks::RasterizerStateDescription &rasterizerStateDescription) override;
-		IDepthStencilState * createDepthStencilState(const ks::DepthStencilStateDescription &depthStencilStateDescription) override;
+		virtual IRasterizerState * createRasterizerState(const ks::RasterizerStateDescription &rasterizerStateDescription) override;
+		virtual IDepthStencilState * createDepthStencilState(const ks::DepthStencilStateDescription &depthStencilStateDescription) override;
 
-		IShader * createShader(const std::string& vertexShaderSource,
+		virtual IShader * createShader(const std::string& vertexShaderSource,
 			const std::string& fragmentShaderSource,
 			const std::vector<UniformBufferInfo>& uniformBuffers,
 			const std::vector<ShaderTexture2DInfo> texture2DInfos,
 			const ks::VertexBufferLayout& layout) override;
 
-		IShader * createShader(const std::string & VertexShaderSource,
+		virtual IShader * createShader(const std::string & VertexShaderSource,
 			const std::string & FragmentShaderSource) override;
 
-		void readTexture(const IFrameBuffer * frameBuffer, ks::PixelBuffer & pixelBuffer) override;
+		virtual void readTexture(const IFrameBuffer * frameBuffer, ks::PixelBuffer & pixelBuffer) override;
 
-		void enableDebug(const bool flag) override;
+		virtual void enableDebug(const bool flag) override;
 
-		ITexture2D * createTexture2D(const unsigned int width,
+		virtual ITexture2D * createTexture2D(const unsigned int width,
 			const unsigned int height, 
 			const TextureFormat textureFormat, 
 			const unsigned char * data) override;
 
-		void erase(IDeletable * deletable) override;
+		virtual void erase(IDeletable * deletable) override;
+
+		virtual void addRenderCommand(std::function<void()> task) override;
+
+		virtual std::function<void()> renderCommand() override;
+
+		virtual void attachToCurrentThread() override;
 	};
 
 }

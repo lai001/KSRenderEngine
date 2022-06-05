@@ -5,8 +5,8 @@
 #error
 #endif // !_WIN32
 
-#include <d3d11.h>
 #include <Foundation/Foundation.hpp>
+#include "Platform/windows.hpp"
 #include "Interface/BlendState.hpp"
 #include "D3D11/D3D11RenderEngine.hpp"
 #include "Common/BlendStateDescription.hpp"

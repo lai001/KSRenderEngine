@@ -61,6 +61,12 @@ namespace ks
 		virtual void erase(IDeletable* deletable) = 0;
 
 		virtual void enableDebug(const bool flag) = 0;
+
+		virtual void addRenderCommand(std::function<void()> task) = 0;
+
+		virtual std::function<void()> renderCommand() = 0;
+
+		virtual void attachToCurrentThread() = 0;
 	};
 }
 

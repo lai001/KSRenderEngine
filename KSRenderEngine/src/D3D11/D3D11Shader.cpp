@@ -14,7 +14,7 @@ namespace ks
 		const PackingRules packingRules = getPackingRules();
 
 		ID3D11Device *d3dDevice = engineInfo.device;
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		assert(d3dDevice);
 		assert(d3dDeviceContext);
 
@@ -137,7 +137,7 @@ namespace ks
 		ID3D11PixelShader* pixelShader = nullptr;
 		ID3D11InputLayout* inputLayout = nullptr;
 		ID3D11Device *d3dDevice = engineInfo.device;
-		ID3D11DeviceContext *context = engineInfo.context;
+		ID3D11DeviceContext *context = engineInfo.getContext();
 		assert(d3dDevice);
 		assert(context);
 
@@ -213,15 +213,17 @@ namespace ks
 		const std::string & fragmentShaderSource,
 		const D3D11RenderEngineInfo & engineInfo)
 	{
-		VertexBufferLayout layout = ShaderReflection::getBufferLayout(vertexShaderSource);
-		std::vector<UniformBufferInfo> uniformBuffers = ShaderReflection::getFragUniformBuffers(fragmentShaderSource);
-		std::vector<ShaderTexture2DInfo> texture2DInfos = ShaderReflection::getFragTexture2DNmaes(fragmentShaderSource);
-		return create(vertexShaderSource, fragmentShaderSource, uniformBuffers, texture2DInfos, layout, engineInfo);
+		const ShaderReflection vertexShaderReflection = ShaderReflection(vertexShaderSource, IShader::Type::vertex);
+		const ShaderReflection fragmentShaderReflection = ShaderReflection(fragmentShaderSource, IShader::Type::fragment);
+		const std::vector<UniformBufferInfo> uniformBuffers = fragmentShaderReflection.getUniformBuffers();
+		const std::vector<ShaderTexture2DInfo> texture2DInfos = fragmentShaderReflection.getTexture2DNmaes();
+		const VertexBufferLayout vertexBufferLayout = vertexShaderReflection.getBufferLayout();
+		return create(vertexShaderSource, fragmentShaderSource, uniformBuffers, texture2DInfos, vertexBufferLayout, engineInfo);
 	}
 
 	void D3D11Shader::bind() const
 	{
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		assert(d3dDeviceContext);
 		assert(inputLayout);
 		assert(vertexShader);
@@ -244,7 +246,7 @@ namespace ks
 
 	void D3D11Shader::unbind() const
 	{
-		ID3D11DeviceContext *context = engineInfo.context;
+		ID3D11DeviceContext *context = engineInfo.getContext();
 		assert(context);
 
 		context->IASetInputLayout(nullptr);
@@ -277,7 +279,7 @@ namespace ks
 		{
 			if (info.name == name)
 			{
-				ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+				ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 				assert(d3dDeviceContext);
 				assert(constantBuffer);
 				const size_t dataTypeSize = getSize(value.type);

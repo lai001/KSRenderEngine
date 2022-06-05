@@ -3,7 +3,7 @@
 
 namespace ks
 {
-	GLRenderEngine::GLRenderEngine(GLRenderEngineCreateInfo createInfo)
+	GLRenderEngine::GLRenderEngine(const GLRenderEngineCreateInfo& createInfo)
 		:createInfo(createInfo)
 	{
 		//ks::GLInit();
@@ -97,5 +97,22 @@ namespace ks
 	void GLRenderEngine::erase(IDeletable * deletable)
 	{
 		delete deletable;
+	}
+
+	void GLRenderEngine::addRenderCommand(std::function<void()> command)
+	{
+		// TODO:
+		assert(false);
+	}
+
+	std::function<void()> GLRenderEngine::renderCommand()
+	{
+		// TODO:
+		assert(false);
+		return std::function<void()>();
+	}
+
+	void GLRenderEngine::attachToCurrentThread()
+	{
 	}
 }

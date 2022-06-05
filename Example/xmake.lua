@@ -11,9 +11,6 @@ rule("Example.deps")
     on_load(function (target)
         local oldir = os.cd(target:scriptdir())
         import("devel.git")
-        if os.exists("../../Foundation") == false then
-            git.clone("https://github.com/lai001/Foundation.git", {branch = "main", outputdir = "../../Foundation"})
-        end
         if os.exists("./Vendor/imgui") == false then
             os.mkdir("./Vendor/imgui")
             local oldir = os.cd("Vendor")

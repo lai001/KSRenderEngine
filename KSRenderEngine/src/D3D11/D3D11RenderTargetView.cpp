@@ -5,7 +5,6 @@ namespace ks
 	D3D11RenderTargetView::D3D11RenderTargetView(const D3D11Texture2D& d3d11Texture2D, const D3D11RenderEngineInfo& engineInfo)
 		:engineInfo(engineInfo)
 	{
-		assert(engineInfo.context);
 		assert(engineInfo.device);
 		assert(d3d11Texture2D.getNativeTexture2D());
 		HRESULT status = S_OK;
@@ -34,16 +33,16 @@ namespace ks
 
 	void D3D11RenderTargetView::bind() const
 	{
-		assert(engineInfo.context);
+		assert(engineInfo.getContext());
 		ID3D11RenderTargetView *const *_view = &renderTargetView;
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		d3dDeviceContext->OMSetRenderTargets(1, _view, nullptr);
 	}
 
 	void D3D11RenderTargetView::unbind() const
 	{
-		assert(engineInfo.context);
-		ID3D11DeviceContext *d3dDeviceContext = engineInfo.context;
+		assert(engineInfo.getContext());
+		ID3D11DeviceContext *d3dDeviceContext = engineInfo.getContext();
 		d3dDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	}
 }
